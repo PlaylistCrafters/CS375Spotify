@@ -22,6 +22,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
+
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+  });
 });
 
 server.listen(port, () => {
