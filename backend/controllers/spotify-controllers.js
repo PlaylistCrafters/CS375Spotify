@@ -14,12 +14,16 @@ function generateRandomString(len) {
 }
 
 function makeSpotifyRequest(endpoint, queryParams, body, accessToken) {
-    let url = BASE_URL + endpoint;
+    let url = BASE_URL + "/" + endpoint;
     if (queryParams != null) {
         //let formattedQueryParams = "?" + <queryParams is a object of key/value pairs, format into a string where each key/value pair is separated by &>
         for (const key in queryParams) {
             url += `?${key}=${queryParams[key]}`;
         }
+
+        //TODO: Spotify uses Authorization header for auth, set proper headers
     }
+
+    console.log(url);
     // Use axios to make request to Spotify
 }
