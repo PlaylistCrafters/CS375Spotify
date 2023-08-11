@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const spotifyRoutes = require("./routes/spotify.js");
 app.use(require("cors")());
 
 const http = require("http");
@@ -27,6 +28,8 @@ io.on("connection", (socket) => {
     socket.join(roomId);
   });
 });
+
+app.use(spotifyRoutes);
 
 server.listen(port, () => {
   console.log(`listening on port: ${port}`);
