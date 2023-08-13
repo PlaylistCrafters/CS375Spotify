@@ -26,6 +26,7 @@ const io = new Server(server, {
 const {
   addPlayerToGame,
   evaluatePlayerAnswer,
+  generateGame,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
