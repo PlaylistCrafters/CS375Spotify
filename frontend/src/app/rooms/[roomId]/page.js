@@ -2,16 +2,13 @@
 
 import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
-import io from "socket.io-client";
-
-let socket;
+import socket from "@/app/socket";
 
 function Page() {
   const { roomId } = useParams();
 
   useEffect(() => {
-    // TODO: Use environment variable
-    socket = io("http://localhost:3001");
+    socket.connect();
     socket.emit("joinRoom", roomId);
 
     return () => {
