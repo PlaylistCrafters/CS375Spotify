@@ -24,7 +24,6 @@ function createRoom(req, res) {
 function generateGame(roomId) {
   // TODO generate questions according to all of the game rules
   // TODO get access token via client credentials flow: https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow
-  // TODO when should we generate a game? should we just do it when everyone clicks "ready"? or force start from host
   const commonSongIds = new Set();
   const commonArtistIds = new Set();
   for (const userData of game[roomId].userData) {
