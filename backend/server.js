@@ -23,7 +23,10 @@ const io = new Server(server, {
   },
 });
 
-const { addPlayerToGame } = require("./controllers/game-controllers.js");
+const {
+  addPlayerToGame,
+  evaluatePlayerAnswer,
+} = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
   console.log("user connected");
@@ -41,6 +44,10 @@ io.on("connection", (socket) => {
       console.log({ event: "joinRoom", error: error });
       socket.to(socket.id).emit("joinRoomError");
     }
+  });
+
+  socket.on("playerAnswer", ({ roomId, player, answer }) => {
+    evaluatePlayerAnswer(roomId, player, answer);
   });
 });
 

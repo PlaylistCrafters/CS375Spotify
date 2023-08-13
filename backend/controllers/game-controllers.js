@@ -95,7 +95,12 @@ function addPlayerToGame(roomId, player) {
   };
 }
 
+function evaluatePlayerAnswer(roomId, playerId, answer) {
+  // TODO do evaluate player answer, give points if correct
+}
+
 module.exports = {
   createRoom,
   addPlayerToGame,
+  evaluatePlayerAnswer,
 };
