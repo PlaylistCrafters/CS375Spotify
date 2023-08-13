@@ -27,6 +27,8 @@ const {
   addPlayerToGame,
   evaluatePlayerAnswer,
   generateGame,
+  startRound,
+  endGame,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -62,7 +64,7 @@ io.on("connection", (socket) => {
       io.to(roomId).emit("gameStarted");
 
       // Start first round
-      startRound(roomId, 1);
+      startRound(io, roomId, games);
     } catch (error) {
       console.error("Error starting game:", error);
       // Handle error, emit an error event to the host
