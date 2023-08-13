@@ -127,8 +127,12 @@ function addPlayerToGame(roomId, player) {
   };
 }
 
-function evaluatePlayerAnswer(roomId, playerId, answer) {
+function evaluatePlayerAnswer(roomId, playerId, answer, questionIndex) {
   // TODO do evaluate player answer, give points if correct
+  // TODO use questionIndex to compare with the answer in the `questions` list
+  // TODO player points will live in `players[playerId].points`
+  // TODO update `roundHistory` for each question so we can keep track on who already successfully answered a question
+  // TODO (therefore we know if a player gets the most points for the question since they answered first, or the least since they answered last)
 }
 
 module.exports = {

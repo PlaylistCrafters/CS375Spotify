@@ -48,8 +48,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("playerAnswer", ({ roomId, player, answer }) => {
-    evaluatePlayerAnswer(roomId, player, answer);
+  socket.on("playerAnswer", ({ answer, questionIndex }) => {
+    evaluatePlayerAnswer(socket.roomId, socket.playerId, answer);
   });
 });
 
