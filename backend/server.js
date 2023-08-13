@@ -48,6 +48,27 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("startGame", () => {
+    try {
+      const roomId = socket.roomId; // Retrieve the stored roomId from the socket object
+      if (!games[roomId]) {
+        throw new Error("Invalid roomId");
+      }
+      // Generate game data and questions for the room using the existing generateGame function
+      generateGame(roomId);
+
+      // Notify players in the room that the game has started
+      io.to(roomId).emit("gameStarted");
+
+      // Start first round
+      startRound(roomId, 1);
+    } catch (error) {
+      console.error("Error starting game:", error);
+      // Handle error, emit an error event to the host
+      socket.emit("startGameError");
+    }
+  });
+
   socket.on("playerAnswer", ({ answer, questionIndex }) => {
     evaluatePlayerAnswer(socket.roomId, socket.playerId, answer);
   });
