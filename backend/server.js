@@ -32,15 +32,12 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 
-  socket.on("joinRoom", ({ roomId, playerId }) => {
+  socket.on("joinRoom", ({ roomId, player }) => {
     try {
-      const player = {
-        playerId: playerId,
-        accessToken: socket.handshake.headers["access-token"],
-      };
+      player.accessToken = socket.handshake.headers["access-token"];
       addPlayerToGame(roomId, player);
       socket.roomId = roomId;
-      socket.playerId = playerId;
+      socket.playerId = player.id;
       socket.join(roomId);
     } catch (error) {
       console.log({ event: "joinRoom", error: error });
