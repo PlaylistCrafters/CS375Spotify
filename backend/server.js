@@ -70,6 +70,48 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("submitAnswer", ({ playerId, answer, questionIndex }) => {
+  try {
+    const roomId = socket.roomId; // Retrieve the stored roomId from the socket object
+    const player = games[roomId].players[playerId]; // Retrieve the player object
+
+    if (!player) {
+      throw new Error("Invalid playerId");
+    }
+
+    const correctAnswer = /* Determine the correct answer for the current round */;
+
+    if (answer === correctAnswer) {
+      // The player's answer is correct, update the round history
+      if (!games[roomId].roundHistory[questionIndex]) {
+        games[roomId].roundHistory[questionIndex] = { playerRankings: [] };
+      }
+
+      games[roomId].roundHistory[questionIndex].playerRankings.push(playerId);
+    }
+
+    // Calculate points based on player rankings
+    const highestPossiblePoints = Object.keys(games[roomId].players).length;
+    const pointsToEarn = highestPossiblePoints - games[roomId].roundHistory[questionIndex].playerRankings.length;
+    player.points += pointsToEarn;
+
+    const numPlayers = io.sockets.adapter.rooms[roomId]?.length || 0;
+    const numCorrectAnswers = games[roomId].roundHistory[questionIndex].playerRankings.length;
+
+    if (numCorrectAnswers === numPlayers) {
+      // All players have answered correctly, trigger the round end logic
+      roundEnd(roomId, questionIndex);
+    }
+
+    // Emit a confirmation event to the player that their answer was received
+    socket.emit("answerSubmitted");
+  } catch (error) {
+    console.error("Error submitting answer:", error);
+    // Handle the error, possibly by emitting an error event to the player
+    socket.emit("answerSubmissionError");
+  }
+});
+
   socket.on("playerAnswer", ({ answer, questionIndex }) => {
     evaluatePlayerAnswer(socket.roomId, socket.playerId, answer);
   });
