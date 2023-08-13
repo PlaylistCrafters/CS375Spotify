@@ -2,9 +2,9 @@
 
 import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
-import Cookies from "js-cookies";
+import Cookies from "js-cookie";
 import socket from "@/app/socket";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const { roomId } = useParams();
