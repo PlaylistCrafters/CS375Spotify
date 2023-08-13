@@ -27,7 +27,6 @@ const {
   addPlayerToGame,
   evaluatePlayerAnswer,
   generateGame,
-  calculateTimeTaken,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -68,29 +67,6 @@ io.on("connection", (socket) => {
       console.error("Error starting game:", error);
       // Handle error, emit an error event to the host
       socket.emit("startGameError");
-    }
-  });
-
-  socket.on("submitAnswer", ({ playerId, answer }) => {
-    try {
-      const roomId = socket.roomId; // Retrieve the stored roomId from the socket object
-      // Check if the provided playerId is valid and in the correct format
-      if (!games[roomId] || !games[roomId].userData[playerId]) {
-        throw new Error("Invalid playerId");
-      }
-
-      const playerAnswer = {
-        answer: answer,
-        timeTaken: calculateTimeTaken(startTime), // Implement this function
-      };
-      games[roomId].points[playerId] = playerAnswer;
-
-      // Emit a confirmation event to the player that their answer was received
-      socket.emit("answerSubmitted");
-    } catch (error) {
-      console.error("Error submitting answer:", error);
-      // Handle the error, possibly by emitting an error event to the player
-      socket.emit("answerSubmissionError");
     }
   });
 
