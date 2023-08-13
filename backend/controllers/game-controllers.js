@@ -1,10 +1,22 @@
 const {
   generateRandomString,
   getXRandomItems,
+  getRandomKey,
 } = require("../controllers/common-controllers.js");
 const { makeSpotifyRequest } = require("../controllers/spotify-controllers.js");
 
 let games = {};
+
+const songQuestionType = "song";
+const artistQuestionType = "artist";
+const questionTypes = {
+  [songQuestionType]: {
+    prompt: "What song is this?",
+  },
+  [artistQuestionType]: {
+    prompt: "Which artist sang this song?",
+  },
+};
 
 function createRoom(req, res) {
   const gameRules = req.gameRules;
@@ -12,9 +24,9 @@ function createRoom(req, res) {
   const game = {
     id: roomId,
     gameRules: gameRules,
-    points: {},
+    players: {},
     questions: [],
-    userData: {},
+    roundHistory: [],
     songBank: [],
   };
   games[roomId] = game;
@@ -26,11 +38,11 @@ function generateGame(roomId) {
   // TODO get access token via client credentials flow: https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow
   const commonSongIds = new Set();
   const commonArtistIds = new Set();
-  for (const userData of game[roomId].userData) {
-    for (const songId of userData.topSongIds) {
+  for (const player of game[roomId].players) {
+    for (const songId of player.topSongIds) {
       commonSongIds.add(songId);
     }
-    for (const artistId of userData.topArtistIds) {
+    for (const artistId of player.topArtistIds) {
       commonArtistIds.add(artistId);
     }
   }
@@ -59,7 +71,7 @@ function generateGame(roomId) {
       id: song.id,
       name: song.name,
       artist: song.artist,
-      previewUrl: song.preview_url,
+      mp3Url: song.preview_url,
     });
   }
 
@@ -69,12 +81,30 @@ function generateGame(roomId) {
 }
 
 function createQuestions(questionSongs, songBank) {
-  // TODO loop through these questionSongs to create question objects
-  // TODO use songBank to get multiple choice options
+  for (questionSong of questionSongs) {
+    const questionType = getRandomKey(questionTypes);
+    const otherSongs = getXRandomItems(songBank, 3);
+    let correctAnswer;
+    let answerChoices;
+    if (questionType === songQuestionType) {
+      correctAnswer = questionSong.name;
+      answerChoices = otherSongs.map((song) => song.name);
+    } else if (questionType === artistQuestionType) {
+      correctAnswer = questionSong.artist;
+      answerChoices = otherSongs.map((song) => song.artist);
+    }
+    questions.push({
+      questionType: questionType,
+      prompt: questionTypes[questionType].prompt,
+      songUrl: questionSong.mp3Url,
+      correctAnswer: correctAnswer,
+      answerChoices: answerChoices,
+    });
+  }
 }
 
 function addPlayerToGame(roomId, player) {
-  const { playerId, accessToken } = player;
+  const { id, accessToken } = player;
   const topSongs = makeSpotifyRequest(
     `/me/top/tracks`,
     null,
@@ -89,9 +119,11 @@ function addPlayerToGame(roomId, player) {
   );
   const topSongIds = topSongs.map((song) => song.id);
   const topArtistIds = topArtists.map((artist) => artist.id);
-  games[roomId].userData[playerId] = {
+  games[roomId].players[playerId] = {
+    id: playerId,
     topSongIds: topSongIds,
     topArtistIds: topArtistIds,
+    points: 0,
   };
 }
 

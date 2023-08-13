@@ -39,6 +39,8 @@ io.on("connection", (socket) => {
     try {
       player.accessToken = socket.handshake.headers["access-token"];
       addPlayerToGame(roomId, player);
+      socket.roomId = roomId;
+      socket.playerId = player.id;
       socket.join(roomId);
     } catch (error) {
       console.log({ event: "joinRoom", error: error });
