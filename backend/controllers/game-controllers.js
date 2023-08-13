@@ -135,6 +135,12 @@ function evaluatePlayerAnswer(roomId, playerId, answer, questionIndex) {
   // TODO (therefore we know if a player gets the most points for the question since they answered first, or the least since they answered last)
 }
 
+function calculateTimeTaken(startTime) {
+  const endTime = performance.now(); // Get the current timestamp in milliseconds
+  const timeTaken = endTime - startTime; // Calculate the time difference in milliseconds
+  return timeTaken;
+}
+
 module.exports = {
   createRoom,
   addPlayerToGame,
