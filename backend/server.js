@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
       throw new Error("Invalid playerId");
     }
 
-    const correctAnswer = /* Determine the correct answer for the current round */;
+    const correctAnswer = currentQuestion.correctAnswer;
 
     if (answer === correctAnswer) {
       // The player's answer is correct, update the round history
