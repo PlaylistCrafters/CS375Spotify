@@ -1,3 +1,5 @@
+const { generateRandomString } = require("../controllers/common-controllers.js");
+
 require("dotenv").config();
 
 const client_id = process.env.CLIENT_ID;
@@ -7,18 +9,6 @@ const axios = require("axios");
 const BASE_URL = "https://api.spotify.com/v1";
 const redirect_uri = "http://localhost:3000/";
 const querystring = require("node:querystring");
-
-function generateRandomString(len) {
-  let text = "";
-  let possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < len; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
-  return text;
-}
 
 function makeSpotifyRequest(endpoint, queryParams, body, accessToken) {
   let url = BASE_URL + "/" + endpoint;

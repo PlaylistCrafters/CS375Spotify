@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
-const spotifyRoutes = require("./routes/spotify.js");
+app.use(express.json());
+const spotifyRoutes = require("./routes/spotify-routes.js");
+const gameRoutes = require("./routes/game-routes.js");
 app.use(require("cors")());
 
 const http = require("http");
@@ -30,6 +32,7 @@ io.on("connection", (socket) => {
 });
 
 app.use(spotifyRoutes);
+app.use(gameRoutes);
 
 server.listen(port, () => {
   console.log(`listening on port: ${port}`);
