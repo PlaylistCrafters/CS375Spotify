@@ -7,6 +7,42 @@ const { makeSpotifyRequest } = require("../controllers/spotify-controllers.js");
 
 let games = {};
 
+const startRound = (io, room, games) => {
+  const game = games[room];
+  const currentQuestion = game.questions[game.currentQuestionIndex];
+  io.to(room).emit('roundStarted', {
+    question: currentQuestion.question,
+    choices: currentQuestion.choices,
+  });
+
+  // Example: Set a timer for the round
+  const roundDuration = 30; // seconds
+  let timeLeft = roundDuration;
+  const timer = setInterval(() => {
+    io.to(room).emit('timerTick', { timeLeft });
+    timeLeft--;
+
+    if (timeLeft < 0) {
+      clearInterval(timer);
+      io.to(room).emit('roundEnded');
+
+      // Start the next round after a delay
+      setTimeout(() => {
+        if (game.currentQuestionIndex < game.questions.length - 1) {
+          game.currentQuestionIndex++;
+          startRound(io, room, games); // Recursive call to start the next round
+        } else {
+          endGame(io, room, games);
+        }
+      }, 5000); // Delay before starting the next round (5 seconds)
+    }
+  }, 1000);
+};
+
+const endGame = (io, room, games) => {
+  // ... (previous endGame logic)
+};
+
 const songQuestionType = "song";
 const artistQuestionType = "artist";
 const questionTypes = {
@@ -139,4 +175,6 @@ module.exports = {
   createRoom,
   addPlayerToGame,
   evaluatePlayerAnswer,
+  startRound,
+  endGame,
 };
