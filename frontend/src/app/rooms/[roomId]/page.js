@@ -9,7 +9,7 @@ function Page() {
 
   useEffect(() => {
     socket.connect();
-    socket.emit("joinRoom", roomId);
+    socket.emit("joinRoom", { roomId: roomId });
 
     return () => {
       socket.disconnect();

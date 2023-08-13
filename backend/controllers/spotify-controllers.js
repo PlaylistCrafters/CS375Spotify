@@ -1,4 +1,6 @@
-const { generateRandomString } = require("../controllers/common-controllers.js");
+const {
+  generateRandomString,
+} = require("../controllers/common-controllers.js");
 
 require("dotenv").config();
 
@@ -38,4 +40,5 @@ const authorize = (req, res) => {
 
 module.exports = {
   authorize,
+  makeSpotifyRequest,
 };

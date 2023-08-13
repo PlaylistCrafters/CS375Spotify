@@ -1,9 +1,13 @@
 const express = require("express");
 const app = express();
 app.use(express.json());
+app.use(require("cors")());
+
 const spotifyRoutes = require("./routes/spotify-routes.js");
 const gameRoutes = require("./routes/game-routes.js");
-app.use(require("cors")());
+
+app.use(spotifyRoutes);
+app.use(gameRoutes);
 
 const http = require("http");
 const server = http.createServer(app);
@@ -19,6 +23,8 @@ const io = new Server(server, {
   },
 });
 
+const { addPlayerToGame } = require("./controllers/game-controllers.js");
+
 io.on("connection", (socket) => {
   console.log("user connected");
 
@@ -26,13 +32,17 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 
-  socket.on("joinRoom", (roomId) => {
-    socket.join(roomId);
+  socket.on("joinRoom", ({ roomId, player }) => {
+    try {
+      player.accessToken = socket.handshake.headers["access-token"];
+      addPlayerToGame(roomId, player);
+      socket.join(roomId);
+    } catch (error) {
+      console.log({ event: "joinRoom", error: error });
+      socket.to(socket.id).emit("joinRoomError");
+    }
   });
 });
-
-app.use(spotifyRoutes);
-app.use(gameRoutes);
 
 server.listen(port, () => {
   console.log(`listening on port: ${port}`);
