@@ -1,4 +1,4 @@
-const express = require("express");
+ const express = require("express");
 const app = express();
 app.use(express.json());
 app.use(require("cors")());
@@ -99,11 +99,6 @@ io.on("connection", (socket) => {
 
     const numPlayers = io.sockets.adapter.rooms[roomId]?.length || 0;
     const numCorrectAnswers = games[roomId].roundHistory[questionIndex].playerRankings.length;
-
-    if (numCorrectAnswers === numPlayers) {
-      // All players have answered correctly, trigger the round end logic
-      roundEnd(roomId, questionIndex);
-    }
 
     // Emit a confirmation event to the player that their answer was received
     socket.emit("answerSubmitted");
