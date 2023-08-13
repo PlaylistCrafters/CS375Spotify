@@ -169,6 +169,27 @@ function evaluatePlayerAnswer(roomId, playerId, answer, questionIndex) {
   // TODO player points will live in `players[playerId].points`
   // TODO update `roundHistory` for each question so we can keep track on who already successfully answered a question
   // TODO (therefore we know if a player gets the most points for the question since they answered first, or the least since they answered last)
+  const game = games[roomId];
+    const question = game.questions[questionIndex];
+
+    if (answer === question.correctAnswer) {
+      if (!game.roundHistory[questionIndex]) {
+        game.roundHistory[questionIndex] = { playerRankings: [] };
+      }
+
+      game.roundHistory[questionIndex].playerRankings.push(playerId);
+
+      // Calculate points based on player rankings
+      const highestPossiblePoints = Object.keys(game.players).length;
+      const pointsToEarn = highestPossiblePoints - game.roundHistory[questionIndex].playerRankings.length;
+      game.players[playerId].points += pointsToEarn;
+    }
+
+    // Emit an event to notify players of the evaluation result (optional)
+    io.to(roomId).emit('answerEvaluated', {
+      playerId: playerId,
+      isCorrect: answer === question.correctAnswer,
+    });
 }
 
 module.exports = {
