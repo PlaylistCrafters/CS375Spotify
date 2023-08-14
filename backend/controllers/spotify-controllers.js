@@ -96,10 +96,11 @@ const callback = async (req, res) => {
     axios(authOptions)
       .then((response) => {
         res.cookie("accessToken", response.data.access_token, {
-          maxAge: response.data.expires_in,
+          maxAge: response.data.expires_in * 1000,
           secure: true,
         });
-        res.redirect("/");
+        // TODO get from env
+        res.redirect("http://localhost:3000/");
       })
       .catch((error) => {
         console.error("Error getting access token:", error);

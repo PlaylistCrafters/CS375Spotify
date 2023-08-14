@@ -1,9 +1,28 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
+import Cookies from "js-cookie";
 
 export default function Home() {
+  const [hasSpotifyToken, setHasSpotifyToken] = useState(false);
+
+  useEffect(() => {
+    const accessToken = Cookies.get("accessToken");
+    setHasSpotifyToken(!!accessToken);
+  }, []);
+
+  const loginSpotify = () => {
+    location.href = "http://localhost:3001/login";
+  };
+
   return (
     <main className={styles.main}>
+      {!hasSpotifyToken && (
+        <button onClick={loginSpotify}>Login with Spotify</button>
+      )}
+
       <div className={styles.description}>
         <p>
           Get started by editing&nbsp;
