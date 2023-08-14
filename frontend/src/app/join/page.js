@@ -6,7 +6,7 @@ function join() {
     let code = document.getElementById("code").value;
     let validRoom = false;
 
-    fetch(`http://localhost:3000/api/room/${code}`).then((response) => {
+    fetch(`http://localhost:3000/api/rooms/${code}`).then((response) => {
         document.getElementById("message").textContent = "";
         if (response.status === 200) {
             validRoom = true;
