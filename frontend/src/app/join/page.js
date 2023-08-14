@@ -22,8 +22,7 @@ function join() {
         }
     });
 
-    //TODO Generate proper lobby url
-    //window.location.replace(Lobby Link); 
+    window.location.replace(`http://localhost:3000:rooms/${code}`); 
 }
 
 
