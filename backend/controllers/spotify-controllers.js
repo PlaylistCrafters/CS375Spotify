@@ -21,7 +21,12 @@ function generateRandomString(len) {
   return text;
 }
 
-const makeSpotifyRequest = (endpoint, queryParams, body, access_token) => {
+const makeSpotifyRequest = (
+  endpoint,
+  queryParams = {},
+  body = {},
+  access_token,
+) => {
   let url = BASE_URL + "/" + endpoint;
   if (queryParams != null) {
     //let formattedQueryParams = "?" + <queryParams is a object of key/value pairs, format into a string where each key/value pair is separated by &>
@@ -30,18 +35,18 @@ const makeSpotifyRequest = (endpoint, queryParams, body, access_token) => {
     }
   }
 
-  let info = {
+  console.log(url);
+
+  let config = {
     headers: {
       Authorization: `Bearer ${access_token}`,
     },
-    data: {
-      body,
-    },
   };
 
-  axios(url, info)
+  axios
+    .get(url, config)
     .then((response) => {
-      res.send(response.data);
+      return response.data;
     })
     .catch((error) => {
       console.error(error);
@@ -95,10 +100,10 @@ const callback = async (req, res) => {
     axios(authOptions)
       .then((response) => {
         const access_token = response.data.access_token;
-
+        res.send(access_token);
         //TODO: we have the access token now, how do we want to pass/store it
 
-        res.redirect("http://localhost:3000/");
+        //res.redirect("http://localhost:3000/");
       })
       .catch((error) => {
         console.error("Error getting access token:", error);
