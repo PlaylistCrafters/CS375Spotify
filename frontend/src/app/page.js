@@ -6,11 +6,11 @@ import styles from "./page.module.css";
 import Cookies from "js-cookie";
 
 export default function Home() {
-  const [hasSpotifyToken, setHasSpotifyToken] = useState(false);
+  const [showSpotifyButton, setShowSpotifyButton] = useState(true);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
-    setHasSpotifyToken(!!accessToken);
+    setShowSpotifyButton(!!accessToken);
   }, []);
 
   const loginSpotify = () => {
@@ -19,7 +19,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      {!hasSpotifyToken && (
+      {!showSpotifyButton && (
         <button onClick={loginSpotify}>Login with Spotify</button>
       )}
 
