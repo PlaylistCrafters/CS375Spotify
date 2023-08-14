@@ -4,11 +4,26 @@
 
 function join() {
     let code = document.getElementById("code").value;
-    console.log(code);
-    
-    //Send post request to backend. If backend sends 200 status, redirect to room. Else, display error message
+    let validRoom = false;
 
-    
+    fetch(`http://localhost:3000/api/room/${code}`).then((response) => {
+        document.getElementById("message").textContent = "";
+        if (response.status === 200) {
+            validRoom = true;
+        }
+        else {
+            validRoom = false;
+        }
+    })
+    .then((body) => {
+        if (!validRoom) {
+            //Need to determine if the server sends an error message
+            document.getElementById("message").textContent = "Invalid Room";
+        }
+    });
+
+    //TODO Generate proper lobby url
+    //window.location.replace(Lobby Link); 
 }
 
 
