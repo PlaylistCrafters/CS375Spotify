@@ -21,7 +21,7 @@ function generateRandomString(len) {
   return text;
 }
 
-function makeSpotifyRequest(endpoint, queryParams, body, accessToken) {
+const makeSpotifyRequest = (endpoint, queryParams, body, access_token) => {
   let url = BASE_URL + "/" + endpoint;
   if (queryParams != null) {
     //let formattedQueryParams = "?" + <queryParams is a object of key/value pairs, format into a string where each key/value pair is separated by &>
@@ -29,7 +29,24 @@ function makeSpotifyRequest(endpoint, queryParams, body, accessToken) {
       url += `?${key}=${queryParams[key]}`;
     }
   }
-}
+
+  let info = {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+    data: {
+      body,
+    },
+  };
+
+  axios(url, info)
+    .then((response) => {
+      res.send(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
 
 const authorize = (req, res) => {
   const state = generateRandomString(16);
@@ -88,6 +105,32 @@ const callback = async (req, res) => {
         res.status(500).send("Error getting access token");
       });
   }
+};
+
+// used for client credential flow
+const clientCredentials = (req, res) => {
+  const authOptions = {
+    url: "https://accounts.spotify.com/api/token",
+    method: "post",
+    data: querystring.stringify({
+      grant_type: "authorization_code",
+    }),
+    headers: {
+      Authorization:
+        "Basic " +
+        Buffer.from(`${client_id}:${client_secret}`).toString("base64"),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  };
+
+  axios(authOptions)
+    .then((response) => {
+      const access_token = response.data.access_token;
+    })
+    .catch((error) => {
+      console.error("Error getting access token:", error);
+      res.status(500).send("Error getting access token");
+    });
 };
 
 module.exports = {
