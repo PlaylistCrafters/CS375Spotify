@@ -33,6 +33,13 @@ function createRoom(req, res) {
   res.json({ roomId: roomId });
 }
 
+function getRoom(req, res) {
+  if (!games.hasOwnProperty(req.query.roomId)) {
+    return res.status(400).json({ error: "Invalid roomId" });
+  }
+  return res.json({ id: roomId, gameRules: games[req.query.roomId].gameRules });
+}
+
 function generateGame(roomId) {
   // TODO generate questions according to all of the game rules
   // TODO get access token via client credentials flow: https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow
@@ -104,7 +111,11 @@ function createQuestions(questionSongs, songBank) {
 }
 
 function addPlayerToGame(roomId, player) {
-  const { id, accessToken } = player;
+  if (!game.hasOwnProperty(roomId)) {
+    throw new Error("Invalid roomId");
+  }
+  const accessToken = player.accessToken;
+  const playerId = player.id;
   const topSongs = makeSpotifyRequest(
     `/me/top/tracks`,
     null,
@@ -129,5 +140,6 @@ function addPlayerToGame(roomId, player) {
 
 module.exports = {
   createRoom,
+  getRoom,
   addPlayerToGame,
 };
