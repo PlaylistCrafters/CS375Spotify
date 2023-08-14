@@ -27,15 +27,11 @@ const makeSpotifyRequest = (
   body = {},
   access_token,
 ) => {
-  let url = BASE_URL + "/" + endpoint;
-  if (queryParams != null) {
-    //let formattedQueryParams = "?" + <queryParams is a object of key/value pairs, format into a string where each key/value pair is separated by &>
-    for (const key in queryParams) {
-      url += `?${key}=${queryParams[key]}`;
-    }
-  }
+  let url = BASE_URL + endpoint;
 
-  console.log(url);
+  if (queryParams != null) {
+    url += querystring.stringify(queryParams);
+  }
 
   let config = {
     headers: {
@@ -55,7 +51,7 @@ const makeSpotifyRequest = (
 
 const authorize = (req, res) => {
   const state = generateRandomString(16);
-  const scope = "user-read-private user-read-email";
+  const scope = "user-read-private user-top-read";
 
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
@@ -99,11 +95,11 @@ const callback = async (req, res) => {
 
     axios(authOptions)
       .then((response) => {
-        const access_token = response.data.access_token;
-        res.send(access_token);
-        //TODO: we have the access token now, how do we want to pass/store it
-
-        //res.redirect("http://localhost:3000/");
+        res.cookie("accessToken", response.data.access_token, {
+          maxAge: response.data.expires_in,
+          secure: true,
+        });
+        res.redirect("/");
       })
       .catch((error) => {
         console.error("Error getting access token:", error);
@@ -112,29 +108,27 @@ const callback = async (req, res) => {
   }
 };
 
-// used for client credential flow
-const clientCredentials = (req, res) => {
+const clientCredentials = () => {
   const authOptions = {
     url: "https://accounts.spotify.com/api/token",
     method: "post",
     data: querystring.stringify({
-      grant_type: "authorization_code",
+      grant_type: "client_credentials",
     }),
     headers: {
       Authorization:
         "Basic " +
         Buffer.from(`${client_id}:${client_secret}`).toString("base64"),
-      "Content-Type": "application/x-www-form-urlencoded",
     },
+    json: true,
   };
 
   axios(authOptions)
     .then((response) => {
-      const access_token = response.data.access_token;
+      return response.data.access_token;
     })
     .catch((error) => {
-      console.error("Error getting access token:", error);
-      res.status(500).send("Error getting access token");
+      return null;
     });
 };
 
