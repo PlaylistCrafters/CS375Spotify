@@ -1,4 +1,4 @@
- const express = require("express");
+const express = require("express");
 const app = express();
 app.use(express.json());
 app.use(require("cors")());
@@ -28,7 +28,6 @@ const {
   evaluatePlayerAnswer,
   generateGame,
   startRound,
-  endGame,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -53,64 +52,32 @@ io.on("connection", (socket) => {
 
   socket.on("startGame", () => {
     try {
-      const roomId = socket.roomId; // Retrieve the stored roomId from the socket object
+      const roomId = socket.roomId;
       if (!games[roomId]) {
         throw new Error("Invalid roomId");
       }
-      // Generate game data and questions for the room using the existing generateGame function
       generateGame(roomId);
-
-      // Notify players in the room that the game has started
-      io.to(roomId).emit("gameStarted");
-
-      // Start first round
-      startRound(io, roomId, games);
+      socket.to(roomId).emit("gameStarted");
+      startRound(socket, roomId);
     } catch (error) {
       console.error("Error starting game:", error);
-      // Handle error, emit an error event to the host
-      socket.emit("startGameError");
+      socket.to(roomId).emit("startGameError");
     }
   });
 
-  socket.on("submitAnswer", ({ playerId, answer, questionIndex }) => {
-  try {
-    const roomId = socket.roomId; // Retrieve the stored roomId from the socket object
-    const player = games[roomId].players[playerId]; // Retrieve the player object
-
-    if (!player) {
-      throw new Error("Invalid playerId");
+  socket.on("submitAnswer", ({ answer, questionIndex }) => {
+    try {
+      evaluatePlayerAnswer(
+        socket,
+        socket.roomId,
+        socket.playerId,
+        answer,
+        questionIndex,
+      );
+    } catch (error) {
+      console.error("Error submitting answer:", error);
+      socket.to(socket.id).emit("answerSubmissionError");
     }
-
-    const correctAnswer = currentQuestion.correctAnswer;
-
-    if (answer === correctAnswer) {
-      // The player's answer is correct, update the round history
-      if (!games[roomId].roundHistory[questionIndex]) {
-        games[roomId].roundHistory[questionIndex] = { playerRankings: [] };
-      }
-
-      games[roomId].roundHistory[questionIndex].playerRankings.push(playerId);
-    }
-
-    // Calculate points based on player rankings
-    const highestPossiblePoints = Object.keys(games[roomId].players).length;
-    const pointsToEarn = highestPossiblePoints - games[roomId].roundHistory[questionIndex].playerRankings.length;
-    player.points += pointsToEarn;
-
-    const numPlayers = io.sockets.adapter.rooms[roomId]?.length || 0;
-    const numCorrectAnswers = games[roomId].roundHistory[questionIndex].playerRankings.length;
-
-    // Emit a confirmation event to the player that their answer was received
-    socket.emit("answerSubmitted");
-  } catch (error) {
-    console.error("Error submitting answer:", error);
-    // Handle the error, possibly by emitting an error event to the player
-    socket.emit("answerSubmissionError");
-  }
-});
-
-  socket.on("playerAnswer", ({ answer, questionIndex }) => {
-    evaluatePlayerAnswer(socket.roomId, socket.playerId, answer);
   });
 });
 

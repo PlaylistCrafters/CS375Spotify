@@ -7,42 +7,6 @@ const { makeSpotifyRequest } = require("../controllers/spotify-controllers.js");
 
 let games = {};
 
-const startRound = (io, room, games) => {
-  const game = games[room];
-  const currentQuestion = game.questions[game.currentQuestionIndex];
-  io.to(room).emit('roundStarted', {
-    question: currentQuestion.question,
-    choices: currentQuestion.choices,
-  });
-
-  // Example: Set a timer for the round
-  const roundDuration = 30; // seconds
-  let timeLeft = roundDuration;
-  const timer = setInterval(() => {
-    io.to(room).emit('timerTick', { timeLeft });
-    timeLeft--;
-
-    if (timeLeft < 0) {
-      clearInterval(timer);
-      io.to(room).emit('roundEnded');
-
-      // Start the next round after a delay
-      setTimeout(() => {
-        if (game.currentQuestionIndex < game.questions.length - 1) {
-          game.currentQuestionIndex++;
-          startRound(io, room, games); // Recursive call to start the next round
-        } else {
-          endGame(io, room, games);
-        }
-      }, 5000); // Delay before starting the next round (5 seconds)
-    }
-  }, 1000);
-};
-
-const endGame = (io, room, games) => {
-  // ... (previous endGame logic)
-};
-
 const songQuestionType = "song";
 const artistQuestionType = "artist";
 const questionTypes = {
@@ -64,6 +28,7 @@ function createRoom(req, res) {
     questions: [],
     roundHistory: [],
     songBank: [],
+    currentQuestionIndex: 0,
   };
   games[roomId] = game;
   res.json({ roomId: roomId });
@@ -163,37 +128,71 @@ function addPlayerToGame(roomId, player) {
   };
 }
 
-function evaluatePlayerAnswer(roomId, playerId, answer, questionIndex) {
-  // TODO do evaluate player answer, give points if correct
-  // TODO use questionIndex to compare with the answer in the `questions` list
-  // TODO player points will live in `players[playerId].points`
-  // TODO update `roundHistory` for each question so we can keep track on who already successfully answered a question
-  // TODO (therefore we know if a player gets the most points for the question since they answered first, or the least since they answered last)
+const startRound = (socket, roomId) => {
   const game = games[roomId];
-    const question = game.questions[questionIndex];
+  const currentQuestion = game.questions[game.currentQuestionIndex];
+  socket
+    .to(roomId)
+    .emit("roundStarted", {
+      currentQuestionIndex: currentQuestionIndex,
+      question: currentQuestion,
+    });
 
-    if (answer === question.correctAnswer) {
-      if (!game.roundHistory[questionIndex]) {
-        game.roundHistory[questionIndex] = { playerRankings: [] };
-      }
+  const roundDuration = game.gameRules.snippetLength;
+  let timeLeft = roundDuration;
+  const timer = setInterval(() => {
+    socket.to(roomId).emit("timerTick", { timeLeft });
+    timeLeft--;
 
-      game.roundHistory[questionIndex].playerRankings.push(playerId);
+    if (timeLeft < 0) {
+      clearInterval(timer);
+      socket.to(roomId).emit("roundEnded");
 
-      // Calculate points based on player rankings
-      const highestPossiblePoints = Object.keys(game.players).length;
-      const pointsToEarn = highestPossiblePoints - game.roundHistory[questionIndex].playerRankings.length;
-      game.players[playerId].points += pointsToEarn;
+      setTimeout(() => {
+        if (game.currentQuestionIndex < game.questions.length - 1) {
+          game.currentQuestionIndex++;
+          startRound(socket, roomId);
+        } else {
+          endGame(socket, roomId);
+        }
+      }, 5000);
+    }
+  }, 1000);
+};
+
+const endGame = (socket, roomId) => {
+  // TODO
+};
+
+function evaluatePlayerAnswer(socket, roomId, playerId, answer, questionIndex) {
+  const game = games[roomId];
+  const question = game.questions[questionIndex];
+  const isCorrect = answer === question.correctAnswer;
+
+  if (isCorrect) {
+    if (!game.roundHistory[questionIndex]) {
+      game.roundHistory[questionIndex] = { playerRankings: [] };
     }
 
-    // Emit an event to notify players of the evaluation result (optional)
-    io.to(roomId).emit('answerEvaluated', {
-      playerId: playerId,
-      isCorrect: answer === question.correctAnswer,
-    });
+    game.roundHistory[questionIndex].playerRankings.push(playerId);
+
+    // Calculate points based on player rankings
+    const highestPossiblePoints = Object.keys(game.players).length;
+    const pointsToEarn =
+      highestPossiblePoints -
+      game.roundHistory[questionIndex].playerRankings.length;
+    game.players[playerId].points += pointsToEarn;
+  }
+
+  socket.to(roomId).emit("answerEvaluated", {
+    playerId: playerId,
+    isCorrect: isCorrect,
+  });
 }
 
 module.exports = {
   createRoom,
+  generateGame,
   addPlayerToGame,
   evaluatePlayerAnswer,
   startRound,
