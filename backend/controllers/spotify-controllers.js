@@ -15,18 +15,6 @@ const BASE_URL = "https://api.spotify.com/v1";
 const redirect_uri = "http://localhost:3001/callback"; // TODO: source this from .env for dev and prod environments
 const querystring = require("node:querystring");
 
-function generateRandomString(len) {
-  let text = "";
-  let possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < len; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
-  return text;
-}
-
 async function makeSpotifyRequest(endpoint, access_token, queryParams = {}) {
   let url = BASE_URL + endpoint;
 
