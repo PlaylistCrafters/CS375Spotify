@@ -27,6 +27,11 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
   });
+
+  socket.on("test", () => {
+    socket.join();
+    console.log("this is a test");
+  });
 });
 
 app.use(spotifyRoutes);
