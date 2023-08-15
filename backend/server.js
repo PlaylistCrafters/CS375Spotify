@@ -33,16 +33,18 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 
-  socket.on("joinRoom", ({ roomId, player }) => {
+  socket.on("joinRoom", async ({ roomId, player }) => {
     try {
-      player.accessToken = socket.handshake.headers["access-token"];
-      addPlayerToGame(roomId, player);
+      await addPlayerToGame(roomId, {
+        ...player,
+        accessToken: socket.handshake.headers["accesstoken"],
+      });
       socket.roomId = roomId;
       socket.playerId = player.id;
       socket.join(roomId);
     } catch (error) {
       console.log({ event: "joinRoom", error: error });
-      socket.to(socket.id).emit("joinRoomError");
+      io.to(socket.id).emit("joinRoomError");
     }
   });
 });

@@ -12,10 +12,15 @@ function Page() {
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
-    socket.io.opts.extraHeaders.accessToken = accessToken;
+    const playerId = Cookies.get("playerId");
+    const displayName = Cookies.get("displayName");
+    socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 
-    socket.emit("joinRoom", { roomId: roomId });
+    socket.emit("joinRoom", {
+      roomId: roomId,
+      player: { playerId: playerId, displayName: displayName },
+    });
 
     socket.on("joinRoomError", () => {
       console.log(`Error joining room ${roomId}}`);
