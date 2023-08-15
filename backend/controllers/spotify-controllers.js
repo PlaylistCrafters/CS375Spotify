@@ -21,12 +21,7 @@ function generateRandomString(len) {
   return text;
 }
 
-const makeSpotifyRequest = (
-  endpoint,
-  queryParams = {},
-  body = {},
-  access_token,
-) => {
+async function makeSpotifyRequest(endpoint, access_token, queryParams = {}) {
   let url = BASE_URL + endpoint;
 
   if (queryParams != null) {
@@ -39,15 +34,14 @@ const makeSpotifyRequest = (
     },
   };
 
-  axios
-    .get(url, config)
-    .then((response) => {
-      return response.data;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-};
+  try {
+    const response = await axios.get(url, config);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data from Spotify API:", error.message);
+    throw error;
+  }
+}
 
 const authorize = (req, res) => {
   const state = generateRandomString(16);
@@ -94,16 +88,34 @@ const callback = async (req, res) => {
     };
 
     axios(authOptions)
-      .then((response) => {
-        res.cookie("accessToken", response.data.access_token, {
-          maxAge: response.data.expires_in,
-          secure: true,
-        });
-        res.redirect("/");
+      .then(async (response) => {
+        makeSpotifyRequest("/me", response.data.access_token, null)
+          .then((userData) => {
+            console.log(userData);
+            res.cookie("accessToken", response.data.access_token, {
+              maxAge: response.data.expires_in * 1000,
+              secure: true,
+            });
+            res.cookie("playerId", userData.id, {
+              maxAge: response.data.expires_in * 1000,
+              secure: true,
+            });
+            res.cookie("displayName", userData.display_name, {
+              maxAge: response.data.expires_in * 1000,
+              secure: true,
+            });
+
+            // TODO get from env
+            res.redirect("http://localhost:3000/");
+          })
+          .catch((error) => {
+            console.error("Error getting user profile: ", error);
+            throw error;
+          });
       })
       .catch((error) => {
-        console.error("Error getting access token:", error);
-        res.status(500).send("Error getting access token");
+        console.error("Error connecting with spotify: ", error);
+        res.status(500).send("Error connecting with spotify");
       });
   }
 };
