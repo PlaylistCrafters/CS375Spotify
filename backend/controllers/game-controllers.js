@@ -156,14 +156,21 @@ async function addPlayerToGame(roomId, player) {
     points: 0,
   };
   console.log(`player ${playerId} joined room ${roomId}`);
-  // TODO remove
-  await generateGame(roomId);
-  console.log(games[roomId].questions);
-  console.log(games[roomId].songBank);
+}
+
+function removePlayerFromGame(roomId, playerId) {
+  if (games.hasOwnProperty(roomId)) {
+    console.log(games[roomId].players);
+    if (games[roomId].players.hasOwnProperty(playerId)) {
+      delete games[roomId].players[playerId];
+      console.log(`player ${playerId} removed from room ${roomId}`);
+    }
+  }
 }
 
 module.exports = {
   createRoom,
   getRoom,
   addPlayerToGame,
+  removePlayerFromGame,
 };

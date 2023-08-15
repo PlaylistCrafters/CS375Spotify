@@ -24,13 +24,19 @@ const io = new Server(server, {
   },
 });
 
-const { addPlayerToGame } = require("./controllers/game-controllers.js");
+const {
+  addPlayerToGame,
+  removePlayerFromGame,
+} = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
   console.log("user connected");
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
+    if (socket.roomId !== null && socket.playerId !== null) {
+      removePlayerFromGame(socket.roomId, socket.playerId);
+    }
   });
 
   socket.on("joinRoom", async ({ roomId, player }) => {
@@ -40,7 +46,7 @@ io.on("connection", (socket) => {
         accessToken: socket.handshake.headers["accesstoken"],
       });
       socket.roomId = roomId;
-      socket.playerId = player.id;
+      socket.playerId = player.playerId;
       socket.join(roomId);
     } catch (error) {
       console.log({ event: "joinRoom", error: error });

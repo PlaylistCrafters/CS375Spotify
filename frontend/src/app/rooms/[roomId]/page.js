@@ -23,7 +23,7 @@ function Page() {
     });
 
     socket.on("joinRoomError", () => {
-      console.log(`Error joining room ${roomId}}`);
+      console.log(`Error joining room ${roomId}`);
       console.log("Returning to home page");
       router.push("/");
     });
