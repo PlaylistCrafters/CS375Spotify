@@ -29,8 +29,28 @@ A multiplayer music quiz game
 - `cd backend`
 - create a file called `.env` with the following contents
 ```
+SERVER_PROTOCOL="http://"
+SERVER_HOST="localhost"
+SERVER_PORT="3001"
+
+CLIENT_PROTOCOL="http://"
+CLIENT_HOST="localhost"
+CLIENT_PORT="3000"
+
+# Spotify Secrets
 CLIENT_ID="<Spotify Client ID>"
 CLIENT_SECRET="<Spotify Client Secret>"
+```
+- `cd frontend`
+- create a file called `.env.local` with the following contents
+```
+SERVER_PROTOCOL="http://"
+SERVER_HOST="localhost"
+SERVER_PORT="3001"
+
+CLIENT_PROTOCOL="http://"
+CLIENT_HOST="localhost"
+CLIENT_PORT="3000"
 ```
 
 ## Backend
