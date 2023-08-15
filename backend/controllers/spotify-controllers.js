@@ -18,7 +18,7 @@ const querystring = require("node:querystring");
 async function makeSpotifyRequest(endpoint, accessToken, queryParams = {}) {
   let url = BASE_URL + endpoint;
 
-  if (queryParams != null) {
+  if (queryParams !== null || Object.keys(queryParams).length === 0) {
     url += `?${querystring.stringify(queryParams)}`;
   }
 
