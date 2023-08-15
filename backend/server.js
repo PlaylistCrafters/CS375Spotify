@@ -3,6 +3,7 @@ const app = express();
 
 app.use(express.json());
 app.use(require("cors")());
+app.use(require("cookie-parser")());
 
 const spotifyRoutes = require("./routes/spotify-routes.js");
 const gameRoutes = require("./routes/game-routes.js");

@@ -31,6 +31,7 @@ function createRoom(req, res) {
     questions: [],
     roundHistory: [],
     songBank: [],
+    hostPlayerId: req.cookies.playerId,
   };
   games[roomId] = game;
   console.log(`Created new room. ID: ${roomId}`);
