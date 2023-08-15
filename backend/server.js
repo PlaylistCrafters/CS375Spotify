@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 
@@ -15,12 +17,14 @@ const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 
-const port = process.env.CLIENT_PORT || 3001;
-const clientHostname = process.env.CLIENT_URL || "http://localhost";
-const clientPort = process.env.CLIENT_PORT || 3000;
+const serverPort = process.env.SERVER_PORT;
+const clientProtocol = process.env.CLIENT_PROTOCOL;
+const clientHost = process.env.CLIENT_HOST;
+const clientPort = process.env.CLIENT_PORT;
+
 const io = new Server(server, {
   cors: {
-    origin: `${clientHostname}:${clientPort}`,
+    origin: `${clientProtocol}${clientHost}:${clientPort}`,
     methods: ["GET"],
   },
 });
@@ -58,6 +62,6 @@ io.on("connection", (socket) => {
 
 app.use(spotifyRoutes);
 
-server.listen(port, () => {
-  console.log(`listening on port: ${port}`);
+server.listen(serverPort, () => {
+  console.log(`listening on port: ${serverPort}`);
 });

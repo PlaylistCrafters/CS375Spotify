@@ -2,19 +2,20 @@ const {
   generateRandomString,
 } = require("../controllers/common-controllers.js");
 
-require("dotenv").config();
-
-const client_id = process.env.CLIENT_ID;
-
-const client_secret = process.env.CLIENT_SECRET;
-
 const axios = require("axios");
+const querystring = require("node:querystring");
 
 const BASE_URL = "https://api.spotify.com/v1";
 
-const redirect_uri = "http://localhost:3001/callback"; // TODO: source this from .env for dev and prod environments
-const querystring = require("node:querystring");
-
+const client_id = process.env.CLIENT_ID;
+const client_secret = process.env.CLIENT_SECRET;
+const serverProtocol = process.env.SERVER_PROTOCOL;
+const serverHost = process.env.SERVER_HOST;
+const serverPort = process.env.SERVER_PORT;
+const clientProtocol = process.env.CLIENT_PROTOCOL;
+const clientHost = process.env.CLIENT_HOST;
+const clientPort = process.env.CLIENT_PORT;
+const redirect_uri = `${serverProtocol}${serverHost}:${serverPort}/callback`
 
 async function makeSpotifyRequest(endpoint, accessToken, queryParams = {}) {
   let url = BASE_URL + endpoint;
@@ -99,8 +100,7 @@ const callback = async (req, res) => {
               secure: true,
             });
 
-            // TODO get from env
-            res.redirect("http://localhost:3000/");
+            res.redirect(`${clientProtocol}${clientHost}:${clientPort}/`)
           })
           .catch((error) => {
             console.error("Error getting user profile: ", error);
