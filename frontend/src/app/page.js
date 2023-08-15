@@ -4,8 +4,10 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { push } = useRouter();
   const [showSpotifyButton, setShowSpotifyButton] = useState(true);
 
   useEffect(() => {
@@ -14,7 +16,10 @@ export default function Home() {
   }, []);
 
   const loginSpotify = () => {
-    location.href = "http://localhost:3001/login";
+    const serverProtocol = process.env.SERVER_PROTOCOL;
+    const serverHost = process.env.SERVER_HOST;
+    const serverPort = process.env.SERVER_PORT;
+    push(`${serverProtocol}${serverHost}:${serverPort}/login`);
   };
 
   return (
