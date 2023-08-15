@@ -25,6 +25,14 @@ A multiplayer music quiz game
 
 # Running Locally
 
+## Secrets
+- `cd backend`
+- create a file called `.env` with the following contents
+```
+CLIENT_ID="<Spotify Client ID>"
+CLIENT_SECRET="<Spotify Client Secret>"
+```
+
 ## Backend
 
 - `cd backend`
