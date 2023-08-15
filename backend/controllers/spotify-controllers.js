@@ -15,6 +15,7 @@ const BASE_URL = "https://api.spotify.com/v1";
 const redirect_uri = "http://localhost:3001/callback"; // TODO: source this from .env for dev and prod environments
 const querystring = require("node:querystring");
 
+
 async function makeSpotifyRequest(endpoint, accessToken, queryParams = {}) {
   let url = BASE_URL + endpoint;
 
