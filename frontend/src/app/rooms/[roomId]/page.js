@@ -39,6 +39,7 @@ function Page() {
   const kickPlayer = (playerId) => {
     if (isHost) {
       const updatedPlayerList = [];
+      socket.emit("kickPlayer", { playerId: playerId });
     }
   };
 
