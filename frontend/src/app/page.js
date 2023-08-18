@@ -1,9 +1,33 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { push } = useRouter();
+  const [showSpotifyButton, setShowSpotifyButton] = useState(true);
+
+  useEffect(() => {
+    const accessToken = Cookies.get("accessToken");
+    setShowSpotifyButton(!!accessToken);
+  }, []);
+
+  const loginSpotify = () => {
+    const serverProtocol = process.env.SERVER_PROTOCOL;
+    const serverHost = process.env.SERVER_HOST;
+    const serverPort = process.env.SERVER_PORT;
+    push(`${serverProtocol}${serverHost}:${serverPort}/login`);
+  };
+
   return (
     <main className={styles.main}>
+      {!showSpotifyButton && (
+        <button onClick={loginSpotify}>Login with Spotify</button>
+      )}
+
       <div className={styles.description}>
         <p>
           Get started by editing&nbsp;
