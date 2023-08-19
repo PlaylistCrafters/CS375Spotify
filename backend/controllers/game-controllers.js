@@ -155,6 +155,7 @@ async function addPlayerToGame(roomId, player) {
     topSongIds: topSongIds,
     topArtistIds: topArtistIds,
     points: 0,
+    isHost: playerId === games[roomId].hostPlayerId,
   };
   console.log(`player ${playerId} joined room ${roomId}`);
 }
