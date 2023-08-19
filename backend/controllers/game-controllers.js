@@ -163,7 +163,12 @@ function getPlayers(roomId) {
   if (!games.hasOwnProperty(roomId)) {
     throw new Error("Invalid roomId");
   }
-  return Object.values(games[roomId].players);
+  const players = Object.values(games[roomId].players);
+  // filter out info about players personal listening history
+  const playersFiltered = players.map(
+    ({ topSongIds, topArtistIds, ...other }) => other,
+  );
+  return playersFiltered;
 }
 
 function getHostPlayerId(roomId) {
