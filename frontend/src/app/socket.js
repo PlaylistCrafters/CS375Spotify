@@ -1,8 +1,10 @@
 import { io } from "socket.io-client";
 
-// TODO: Use environment variable
-const url = "http://localhost:3001";
-const socket = io(url, { autoConnect: false, extraHeaders: {} });
+const serverProtocol = process.env.SERVER_PROTOCOL;
+const serverHost = process.env.SERVER_HOST;
+const serverPort = process.env.SERVER_PORT;
+const socketUrl = `${serverProtocol}${serverHost}:${serverPort}`
+const socket = io(socketUrl, { autoConnect: false, extraHeaders: {} });
 
 socket.onAny((event, ...args) => {
   console.log(event, args);

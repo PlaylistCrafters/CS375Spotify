@@ -3,7 +3,10 @@ const {
   getXRandomItems,
   getRandomKey,
 } = require("../controllers/common-controllers.js");
-const { makeSpotifyRequest } = require("../controllers/spotify-controllers.js");
+const {
+  makeSpotifyRequest,
+  clientCredentials,
+} = require("../controllers/spotify-controllers.js");
 
 let games = {};
 
@@ -14,12 +17,12 @@ const questionTypes = {
     prompt: "What song is this?",
   },
   [artistQuestionType]: {
-    prompt: "Which artist sang this song?",
+    prompt: "Which artist(s) sang this song?",
   },
 };
 
 function createRoom(req, res) {
-  const gameRules = req.gameRules;
+  const gameRules = req.body.gameRules;
   const roomId = generateRandomString(6);
   const game = {
     id: roomId,
@@ -28,8 +31,10 @@ function createRoom(req, res) {
     questions: [],
     roundHistory: [],
     songBank: [],
+    hostPlayerId: req.cookies.playerId,
   };
   games[roomId] = game;
+  console.log(`Created new room. ID: ${roomId}`);
   res.json({ roomId: roomId });
 }
 
@@ -40,12 +45,11 @@ function getRoom(req, res) {
   return res.json({ id: roomId, gameRules: games[req.query.roomId].gameRules });
 }
 
-function generateGame(roomId) {
+async function generateGame(roomId) {
   // TODO generate questions according to all of the game rules
-  // TODO get access token via client credentials flow: https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow
   const commonSongIds = new Set();
   const commonArtistIds = new Set();
-  for (const player of game[roomId].players) {
+  for (const [playerId, player] of Object.entries(games[roomId].players)) {
     for (const songId of player.topSongIds) {
       commonSongIds.add(songId);
     }
@@ -54,92 +58,120 @@ function generateGame(roomId) {
     }
   }
 
+  const accessToken = await clientCredentials();
+
   const songBankIds = new Set(commonSongIds);
   for (const artistId of commonArtistIds) {
-    const artistTopTracks = makeSpotifyRequest(
+    const artistTopTracks = await makeSpotifyRequest(
       `/artists/${artistId}/top-tracks`,
-      null,
-      null,
-      null,
+      accessToken,
+      { market: "ES" },
     );
-    for (const track of artistTopTracks) {
+    for (const track of artistTopTracks.tracks) {
       songBankIds.add(track.id);
     }
   }
 
   // Grab up to 50 random songs (Spotify's limit)
   const selectedSongIds = getXRandomItems(songBankIds, 50);
-  const trackResponse = makeSpotifyRequest("/tracks", {
+  const trackResponse = await makeSpotifyRequest("/tracks", accessToken, {
     ids: selectedSongIds.join(","),
   });
 
   for (const song of trackResponse.tracks) {
-    game[roomId].songBank.push({
-      id: song.id,
-      name: song.name,
-      artist: song.artist,
-      mp3Url: song.preview_url,
-    });
+    if (song.preview_url !== null) {
+      games[roomId].songBank.push({
+        id: song.id,
+        name: song.name,
+        artist: song.artists[0].name,
+        mp3Url: song.preview_url,
+      });
+    }
   }
 
-  const rounds = game[roomId].gameRules.rounds;
-  const questionSongs = getXRandomItems(game[roomId].songBank, rounds);
-  game[roomId].questions = createQuestions(questionSongs);
+  const rounds = games[roomId].gameRules.rounds;
+  const questionSongs = getXRandomItems(games[roomId].songBank, rounds);
+  games[roomId].questions = createQuestions(
+    questionSongs,
+    games[roomId].songBank,
+  );
 }
 
 function createQuestions(questionSongs, songBank) {
-  for (questionSong of questionSongs) {
+  const questions = [];
+  for (const questionSong of questionSongs) {
     const questionType = getRandomKey(questionTypes);
-    const otherSongs = getXRandomItems(songBank, 3);
+    // Flatten the song bank to one song per artist so the multiple choice for "artist" questions do not have duplicate answers
+    const uniqueArtistSongBank = songBank.reduce(
+      (uniqueSongsByArtist, item) => {
+        const existingItem = uniqueSongsByArtist.find(
+          (obj) => obj.artist === item.artist,
+        );
+        if (!existingItem) {
+          uniqueSongsByArtist.push(item);
+        }
+        return uniqueSongsByArtist;
+      },
+      [],
+    );
+    const otherSongs = getXRandomItems(uniqueArtistSongBank, 3);
     let correctAnswer;
-    let answerChoices;
+    let otherAnswerChoices;
     if (questionType === songQuestionType) {
       correctAnswer = questionSong.name;
-      answerChoices = otherSongs.map((song) => song.name);
+      otherAnswerChoices = otherSongs.map((song) => song.name);
     } else if (questionType === artistQuestionType) {
       correctAnswer = questionSong.artist;
-      answerChoices = otherSongs.map((song) => song.artist);
+      otherAnswerChoices = otherSongs.map((song) => song.artist);
     }
+    console.log("other songs:", otherSongs);
     questions.push({
       questionType: questionType,
       prompt: questionTypes[questionType].prompt,
       songUrl: questionSong.mp3Url,
       correctAnswer: correctAnswer,
-      answerChoices: answerChoices,
+      answerChoices: [...otherAnswerChoices, correctAnswer],
     });
   }
+  return questions;
 }
 
-function addPlayerToGame(roomId, player) {
-  if (!game.hasOwnProperty(roomId)) {
+async function addPlayerToGame(roomId, player) {
+  if (!games.hasOwnProperty(roomId)) {
     throw new Error("Invalid roomId");
   }
-  const accessToken = player.accessToken;
-  const playerId = player.id;
-  const topSongs = makeSpotifyRequest(
-    `/me/top/tracks`,
-    null,
-    null,
-    accessToken,
-  );
-  const topArtists = makeSpotifyRequest(
-    `/me/top/artists`,
-    null,
-    null,
-    accessToken,
-  );
-  const topSongIds = topSongs.map((song) => song.id);
-  const topArtistIds = topArtists.map((artist) => artist.id);
+  const { playerId, accessToken, displayName } = player;
+  const topSongs = await makeSpotifyRequest(`/me/top/tracks`, accessToken, {
+    limit: 50,
+  });
+  const topArtists = await makeSpotifyRequest(`/me/top/artists`, accessToken, {
+    limit: 50,
+  });
+  const topSongIds = topSongs.items.map((song) => song.id);
+  const topArtistIds = topArtists.items.map((artist) => artist.id);
   games[roomId].players[playerId] = {
     id: playerId,
+    displayName: displayName,
     topSongIds: topSongIds,
     topArtistIds: topArtistIds,
     points: 0,
   };
+  console.log(`player ${playerId} joined room ${roomId}`);
+}
+
+function removePlayerFromGame(roomId, playerId) {
+  if (games.hasOwnProperty(roomId)) {
+    console.log(games[roomId].players);
+    if (games[roomId].players.hasOwnProperty(playerId)) {
+      delete games[roomId].players[playerId];
+      console.log(`player ${playerId} removed from room ${roomId}`);
+    }
+  }
 }
 
 module.exports = {
   createRoom,
   getRoom,
   addPlayerToGame,
+  removePlayerFromGame,
 };
