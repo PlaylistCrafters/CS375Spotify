@@ -10,12 +10,13 @@ function Page() {
   const { roomId } = useParams();
   const router = useRouter();
   const [players, setPlayers] = useState([]);
-  const [isHost, setIsHost] = useState(true);
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
     const playerId = Cookies.get("playerId");
     const displayName = Cookies.get("displayName");
+    toggleHost();
     socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 
@@ -37,15 +38,25 @@ function Page() {
 
   const startGame = () => {
     if (isHost) {
-      router.push("/");
+      socket.emit("startGame", { roomId: roomId });
     }
+
+    router.push("/");
   };
 
+  /*
   const kickPlayer = (playerId) => {
     if (isHost) {
-      const updatedPlayerList = [];
       socket.emit("kickPlayer", { playerId: playerId });
     }
+  };
+  */
+
+  const toggleHost = () => {
+    let hostPlayerId = Cookies.get("hostPlayerId");
+    let playerId = Cookies.get("playerId");
+
+    setIsHost(hostPlayerId === playerId);
   };
 
   return (

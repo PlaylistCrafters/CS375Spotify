@@ -32,6 +32,7 @@ const io = new Server(server, {
 const {
   addPlayerToGame,
   removePlayerFromGame,
+  generateGame,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -55,6 +56,17 @@ io.on("connection", (socket) => {
       socket.join(roomId);
     } catch (error) {
       console.log({ event: "joinRoom", error: error });
+      io.to(socket.id).emit("joinRoomError");
+    }
+  });
+
+  socket.on("startGame", async ({ roomId }) => {
+    //TODO: Need to ensure startGame message is received properly
+    try {
+      await generateGame(roomId);
+      console.log("Game started for room:", roomId);
+    } catch (error) {
+      console.log({ event: "startGame", error: error });
       io.to(socket.id).emit("joinRoomError");
     }
   });

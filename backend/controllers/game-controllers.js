@@ -174,4 +174,5 @@ module.exports = {
   getRoom,
   addPlayerToGame,
   removePlayerFromGame,
+  generateGame,
 };
