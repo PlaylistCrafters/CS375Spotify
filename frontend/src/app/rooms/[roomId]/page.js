@@ -1,16 +1,28 @@
 "use client";
 
+import EndScreen from "@/components/EndScreen";
+import LobbyScreen from "@/components/LobbyScreen";
+import QuestionScreen from "@/components/QuestionScreen";
+import RoundResultsScreen from "@/components/RoundResultScreen";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import socket from "@/app/socket";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+
+const lobbyScreen = "lobbyScreen";
+const questionScreen = "questionScreen";
+const roundResultsScreen = "roundResultsScreen";
+const endScreen = "endScreen";
 
 function Page() {
   const { roomId } = useParams();
   const router = useRouter();
-  const [players, setPlayers] = useState([]);
-  const [isHost, setIsHost] = useState(false);
+
+  const [screen, setScreen] = useState(null);
+  const [question, setQuestion] = useState(null);
+  const [players, setPlayers] = useState(null);
+  const [roundResult, setRoundResult] = useState(null);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
@@ -59,21 +71,34 @@ function Page() {
     setIsHost(hostPlayerId === playerId);
   };
 
-  return (
-    <div>
-      <h1>Room {roomId}</h1>
-      <div>
-        <h2>Players:</h2>
-      </div>
-      <ul>
-        {players.map((player, index) => (
-          <li key={index}>{player.name}</li>
-        ))}
-      </ul>
-      <div>{isHost && <button onClick={startGame}>Start Game</button>}</div>
-      <div></div>
-    </div>
-  );
+  const startGameFunc = () => {
+    // TODO emit startGame event
+  };
+
+  const onSelectAnswer = () => {
+    // TODO emit answer event
+  };
+
+  const displayScreen = () => {
+    switch (screen) {
+      case lobbyScreen:
+        return <LobbyScreen players={players} startGameFunc={startGameFunc} />;
+      case questionScreen:
+        return (
+          <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} />
+        );
+      case roundResultsScreen:
+        return (
+          <RoundResultsScreen players={players} roundResult={roundResult} />
+        );
+      case endScreen:
+        return <EndScreen players={players} />;
+      default:
+        return null;
+    }
+  };
+
+  return <div>{displayScreen()}</div>;
 }
 
 export default Page;
