@@ -170,64 +170,59 @@ function removePlayerFromGame(roomId, playerId) {
   }
 }
 
-const startRound = (socket, roomId) => {
+const startRound = (io, roomId) => {
   const game = games[roomId];
   const currentQuestion = game.questions[game.currentQuestionIndex];
-  socket.to(roomId).emit("roundStarted", {
-    currentQuestionIndex: currentQuestionIndex,
+  io.to(roomId).emit("nextQuestion", {
     question: currentQuestion,
   });
 
   const roundDuration = game.gameRules.snippetLength;
   let timeLeft = roundDuration;
   const timer = setInterval(() => {
-    socket.to(roomId).emit("timerTick", { timeLeft });
+    io.to(roomId).emit("timerTick", { timeLeft });
     timeLeft--;
 
     if (timeLeft < 0) {
       clearInterval(timer);
-      socket.to(roomId).emit("roundEnded");
+      io.to(roomId).emit("roundEnded");
 
       setTimeout(() => {
         if (game.currentQuestionIndex < game.questions.length - 1) {
           game.currentQuestionIndex++;
-          startRound(socket, roomId);
+          startRound(io, roomId);
         } else {
-          endGame(socket, roomId);
+          endGame(io, roomId);
         }
       }, 5000);
     }
   }, 1000);
 };
 
-const endGame = (socket, roomId) => {
+const endGame = (io, roomId) => {
   // TODO
 };
 
-function evaluatePlayerAnswer(socket, roomId, playerId, answer, questionIndex) {
+function evaluatePlayerAnswer(roomId, playerId, answer) {
   const game = games[roomId];
-  const question = game.questions[questionIndex];
+  const currentQuestionIndex = game.currentQuestionIndex;
+  const question = game.questions[currentQuestionIndex];
   const isCorrect = answer === question.correctAnswer;
 
   if (isCorrect) {
-    if (!game.roundHistory[questionIndex]) {
-      game.roundHistory[questionIndex] = { playerRankings: [] };
+    if (!game.roundHistory[currentQuestionIndex]) {
+      game.roundHistory[currentQuestionIndex] = { playerRankings: [] };
     }
 
-    game.roundHistory[questionIndex].playerRankings.push(playerId);
+    game.roundHistory[currentQuestionIndex].playerRankings.push(playerId);
 
     // Calculate points based on player rankings
     const highestPossiblePoints = Object.keys(game.players).length;
     const pointsToEarn =
       highestPossiblePoints -
-      game.roundHistory[questionIndex].playerRankings.length;
+      game.roundHistory[currentQuestionIndex].playerRankings.length;
     game.players[playerId].points += pointsToEarn;
   }
-
-  socket.to(roomId).emit("answerEvaluated", {
-    playerId: playerId,
-    isCorrect: isCorrect,
-  });
 }
 
 module.exports = {

@@ -69,26 +69,17 @@ io.on("connection", (socket) => {
         throw new Error("Invalid roomId");
       }
       generateGame(roomId);
-      socket.to(roomId).emit("gameStarted");
-      startRound(socket, roomId);
+      startRound(io, roomId);
     } catch (error) {
       console.error("Error starting game:", error);
-      socket.to(roomId).emit("startGameError");
     }
   });
 
-  socket.on("submitAnswer", ({ answer, questionIndex }) => {
+  socket.on("submitAnswer", ({ answer }) => {
     try {
-      evaluatePlayerAnswer(
-        socket,
-        socket.roomId,
-        socket.playerId,
-        answer,
-        questionIndex,
-      );
+      evaluatePlayerAnswer(socket.roomId, socket.playerId, answer);
     } catch (error) {
       console.error("Error submitting answer:", error);
-      socket.to(socket.id).emit("answerSubmissionError");
     }
   });
 });
