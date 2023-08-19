@@ -32,6 +32,7 @@ const io = new Server(server, {
 const {
   addPlayerToGame,
   removePlayerFromGame,
+  getPlayers,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -53,14 +54,16 @@ io.on("connection", (socket) => {
       socket.roomId = roomId;
       socket.playerId = player.playerId;
       socket.join(roomId);
+      const players = getPlayers(roomId);
+      io.to(roomId).emit("updateLobby", {
+        players: players,
+      });
     } catch (error) {
       console.log({ event: "joinRoom", error: error });
       io.to(socket.id).emit("joinRoomError");
     }
   });
 });
-
-app.use(spotifyRoutes);
 
 server.listen(serverPort, () => {
   console.log(`listening on port: ${serverPort}`);

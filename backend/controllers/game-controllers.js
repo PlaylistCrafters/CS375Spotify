@@ -159,6 +159,13 @@ async function addPlayerToGame(roomId, player) {
   console.log(`player ${playerId} joined room ${roomId}`);
 }
 
+function getPlayers(roomId) {
+  if (!games.hasOwnProperty(roomId)) {
+    throw new Error("Invalid roomId");
+  }
+  return Object.values(games[roomId].players);
+}
+
 function removePlayerFromGame(roomId, playerId) {
   if (games.hasOwnProperty(roomId)) {
     console.log(games[roomId].players);
@@ -174,4 +181,5 @@ module.exports = {
   getRoom,
   addPlayerToGame,
   removePlayerFromGame,
+  getPlayers,
 };
