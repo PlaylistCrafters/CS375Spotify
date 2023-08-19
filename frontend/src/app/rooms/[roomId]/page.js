@@ -19,22 +19,29 @@ function Page() {
   const { roomId } = useParams();
   const router = useRouter();
 
-  const [screen, setScreen] = useState(null);
+  const [screen, setScreen] = useState(lobbyScreen);
   const [question, setQuestion] = useState(null);
-  const [players, setPlayers] = useState(null);
+  const [players, setPlayers] = useState([]);
   const [roundResult, setRoundResult] = useState(null);
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
     const playerId = Cookies.get("playerId");
     const displayName = Cookies.get("displayName");
-    toggleHost();
+
     socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 
     socket.emit("joinRoom", {
       roomId: roomId,
       player: { playerId: playerId, displayName: displayName },
+    });
+
+    socket.on("updateLobby", ({ players, hostPlayerId }) => {
+      console.log("updatedLobby");
+      setPlayers(players);
+      setIsHost(hostPlayerId === playerId);
     });
 
     socket.on("joinRoomError", () => {
@@ -46,33 +53,18 @@ function Page() {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [roomId]);
 
-  const startGame = () => {
-    if (isHost) {
-      socket.emit("startGame", { roomId: roomId });
-    }
-
-    router.push("/");
-  };
-
-  /*
   const kickPlayer = (playerId) => {
     if (isHost) {
       socket.emit("kickPlayer", { playerId: playerId });
     }
   };
-  */
-
-  const toggleHost = () => {
-    let hostPlayerId = Cookies.get("hostPlayerId");
-    let playerId = Cookies.get("playerId");
-
-    setIsHost(hostPlayerId === playerId);
-  };
 
   const startGameFunc = () => {
-    // TODO emit startGame event
+    if (isHost) {
+      socket.emit("startGame", { roomId: roomId });
+    }
   };
 
   const onSelectAnswer = () => {
@@ -82,7 +74,13 @@ function Page() {
   const displayScreen = () => {
     switch (screen) {
       case lobbyScreen:
-        return <LobbyScreen players={players} startGameFunc={startGameFunc} />;
+        return (
+          <LobbyScreen
+            players={players}
+            startGameFunc={startGameFunc}
+            isHost={isHost}
+          />
+        );
       case questionScreen:
         return (
           <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} />

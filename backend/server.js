@@ -48,6 +48,7 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", async ({ roomId, player }) => {
     try {
+      console.log("test");
       await addPlayerToGame(roomId, {
         ...player,
         accessToken: socket.handshake.headers["accesstoken"],
