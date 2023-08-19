@@ -155,7 +155,6 @@ async function addPlayerToGame(roomId, player) {
     topSongIds: topSongIds,
     topArtistIds: topArtistIds,
     points: 0,
-    isHost: playerId === games[roomId].hostPlayerId,
   };
   console.log(`player ${playerId} joined room ${roomId}`);
 }
@@ -165,6 +164,13 @@ function getPlayers(roomId) {
     throw new Error("Invalid roomId");
   }
   return Object.values(games[roomId].players);
+}
+
+function getHostPlayerId(roomId) {
+  if (!games.hasOwnProperty(roomId)) {
+    throw new Error("Invalid roomId");
+  }
+  return games[roomId].hostPlayerId;
 }
 
 function removePlayerFromGame(roomId, playerId) {
@@ -183,4 +189,5 @@ module.exports = {
   addPlayerToGame,
   removePlayerFromGame,
   getPlayers,
+  getHostPlayerId,
 };
