@@ -52,7 +52,7 @@ function Page() {
       case roundResultsScreen:
         return <RoundResultsScreen roundResult={roundResult} />;
       case endScreen:
-        return <EndScreen />;
+        return <EndScreen players={players} />;
       default:
         return null;
     }
