@@ -173,9 +173,7 @@ function removePlayerFromGame(roomId, playerId) {
 const startRound = (io, roomId) => {
   const game = games[roomId];
   const currentQuestion = game.questions[game.currentQuestionIndex];
-  io.to(roomId).emit("nextQuestion", {
-    question: currentQuestion,
-  });
+  io.to(roomId).emit("nextQuestion", currentQuestion);
 
   const roundDuration = game.gameRules.snippetLength;
   let timeLeft = roundDuration;
