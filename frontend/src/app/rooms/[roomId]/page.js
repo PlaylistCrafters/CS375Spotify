@@ -50,7 +50,9 @@ function Page() {
           <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} />
         );
       case roundResultsScreen:
-        return <RoundResultsScreen roundResult={roundResult} />;
+        return (
+          <RoundResultsScreen players={players} roundResult={roundResult} />
+        );
       case endScreen:
         return <EndScreen players={players} />;
       default:
