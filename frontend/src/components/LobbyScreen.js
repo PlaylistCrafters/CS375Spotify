@@ -1,4 +1,4 @@
-const LobbyScreen = ({ players, startGameFunc }) => {
+const LobbyScreen = ({ players, startGameFunc, currentPlayerId }) => {
   // TODO display players
   // TODO if current user is the host, then display a button to start the game
   return <div>Lobby Screen</div>;
