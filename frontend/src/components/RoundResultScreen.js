@@ -1,6 +1,6 @@
 import React from "react";
 import "./RoundResultsScreen.css";
-const RoundResultsScreen = ({ players, roundResult, currentUserPlayerID }) => {
+const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId }) => {
   const sortedPlayers = players.slice().sort((a, b) => b.points - a.points);
   // TODO display current leader board and also indicate if the current user got the answer correct
   return (
