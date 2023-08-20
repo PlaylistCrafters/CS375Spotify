@@ -23,7 +23,9 @@ const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId, socket 
   }, [roundResult]);
 
   useEffect(() => {
-    const handleNextQuestion = () => {
+    const handleNextQuestion = (nextQuestion) => {
+      setQuestion(nextQuestion);
+      setCountdownNextQuestion(40);
     };
     socket.on("nextQuestion", handleNextQuestion);
     return () => {
