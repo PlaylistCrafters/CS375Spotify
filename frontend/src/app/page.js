@@ -28,6 +28,13 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
+      <div>
+        Invite your friends to a song showdown! Create or join a game room and
+        challenge other players. Compete in real-time to see who can correctly
+        answer questions about song titles and artists, all while racing against
+        the clock.
+      </div>
+
       {isAuthenticated ? (
         <div>
           <button onClick={() => handleRedirect("/create")}>Create Room</button>
