@@ -3,7 +3,7 @@ import "./RoundResultsScreen.css";
 const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId, socket }) => {
   // TODO display current leader board and also indicate if the current user got the answer correct
   
-  const [countdownNextQuestion, setCountdownNextQuestion] = useState(30);
+  const [countdownNextQuestion, setCountdownNextQuestion] = useState(40);
   useEffect(() => {
     let countdownNextQuestionInterval;
 
