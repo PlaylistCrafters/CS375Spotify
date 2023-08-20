@@ -1,41 +1,33 @@
 'use client';
 
-//TODO Add spotify login checker
-
-function join() {
-    let code = document.getElementById("code").value;
-    let validRoom = false;
-
-    fetch(`http://localhost:3000/api/rooms/${code}`).then((response) => {
-        document.getElementById("message").textContent = "";
-        if (response.status === 200) {
-            validRoom = true;
-        }
-        else {
-            validRoom = false;
-        }
-    })
-    .then((body) => {
-        if (!validRoom) {
-            //Need to determine if the server sends an error message
-            document.getElementById("message").textContent = "Invalid Room";
-        }
-    });
-
-    window.location.replace(`http://localhost:3000:rooms/${code}`); 
-}
-
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+    const router = useRouter();
+
+    const handleJoin  = async(event) => {
+        event.preventDefault();
+
+        let code = document.getElementById("code").value;
+        const endpoint = `/rooms/${code}`;
+        const response = await fetch(endpoint);
+        document.getElementById("message").textContent = "";
+        if (response.status === 200) {
+            router.push(`/rooms/${code}`);
+        }
+        else {
+            document.getElementById("message").textContent = "Invalid Room";
+        }
+    }
+
   return (
             <div>
                 <h1>Join Room</h1>
-                <button id="spotify">Login to Spotify</button>
                 <div>
                     <label>Room code:</label>
                     <input id="code" type="text"/>
                 </div>
-                <button id="join" onClick={join}>Join</button>
+                <button id="join" onClick={handleJoin}>Join</button>
                 <div id="message">
                 </div>
             </div>
