@@ -1,34 +1,40 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Home() {
+    const [errorMessage, setErrorMessage] = useState('');
+    const serverProtocol = process.env.SERVER_PROTOCOL;
+    const serverHost = process.env.SERVER_HOST;
+    const serverPort = process.env.SERVER_PORT;
+
     const router = useRouter();
 
     const handleJoin  = async(event) => {
         event.preventDefault();
 
-        let code = document.getElementById("code").value;
-        const endpoint = `/rooms/${code}`;
-        const response = await fetch(endpoint);
-        document.getElementById("message").textContent = "";
+        let code = event.target.code;
+        const endpoint = `/api/rooms/${code}`;
+        const response = await fetch(`${serverProtocol}${serverHost}:${serverPort}${endpoint}`);
+        setErrorMessage("");
         if (response.status === 200) {
             router.push(`/rooms/${code}`);
         }
         else {
-            document.getElementById("message").textContent = "Invalid Room";
+            setErrorMessage("Invalid Room");
         }
     }
 
   return (
             <div>
                 <h1>Join Room</h1>
-                <div>
+                <form onSubmit={handleJoin}>
                     <label>Room code:</label>
                     <input id="code" type="text"/>
-                </div>
-                <button id="join" onClick={handleJoin}>Join</button>
-                <div id="message">
+                    <button id="join" type="submit">Join</button>
+                </form>
+                <div id="message">{errorMessage}
                 </div>
             </div>
   );
