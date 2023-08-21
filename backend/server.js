@@ -74,14 +74,7 @@ io.on("connection", (socket) => {
 
   socket.on("startGame", () => {
     try {
-      //const roomId = socket.roomId;
-      const roomId = "asv34a";
-      console.log(roomId);
-      let games = [];
-      games["asv34a"] = true;
-      if (!games[roomId]) {
-        throw new Error("Invalid roomId");
-      }
+      const roomId = socket.roomId;
       generateGame(roomId);
       startRound(io, roomId);
     } catch (error) {
@@ -101,7 +94,6 @@ io.on("connection", (socket) => {
   socket.on("test", () => {
     test();
   });
-  
 
   socket.on("nextQuestion", () => {
     console.log("nextQuestion");
