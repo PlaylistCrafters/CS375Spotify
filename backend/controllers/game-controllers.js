@@ -22,7 +22,7 @@ const questionTypes = {
 };
 
 function createRoom(req, res) {
-  const gameRules = req.body.gameRules;
+  const gameRules = req.body;
   const roomId = generateRandomString(6);
   const game = {
     id: roomId,
