@@ -34,7 +34,7 @@ function Page() {
     socket.emit("test");
 
     socket.emit("joinRoom", {
-      roomId: "asv34a",
+      roomId: roomId,
       player: { playerId: playerId, displayName: displayName },
     });
 
@@ -45,9 +45,14 @@ function Page() {
     });
 
     socket.on("nextQuestion", () => {
+      // TODO update question with setQuestion
       console.log("change screen");
       setScreen(questionScreen);
+    });
 
+    // TODO delete this code, added for testing purposes
+    socket.on("updateLobby", (obj) => {
+      socket.emit("startGame");
     });
 
     return () => {
@@ -57,7 +62,6 @@ function Page() {
 
   useEffect(() => {
     socket.emit("startGame");
-
   });
 
   const startGameFunc = () => {

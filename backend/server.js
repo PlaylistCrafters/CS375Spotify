@@ -38,7 +38,6 @@ const {
   getPlayers,
   getHostPlayerId,
   getRoom,
-  test,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -90,14 +89,14 @@ io.on("connection", (socket) => {
     }
   });
 
-  //For testing purposes
-  socket.on("test", () => {
-    test();
-  });
+  // TODO For testing purposes, remove later
+  // socket.on("test", () => {
+  //   test();
+  // });
 
-  socket.on("nextQuestion", () => {
-    console.log("nextQuestion");
-  });
+  // socket.on("nextQuestion", () => {
+  //   console.log("nextQuestion");
+  // });
 });
 
 server.listen(serverPort, () => {
