@@ -49,7 +49,6 @@ function getRoom(req, res) {
 }
 
 async function generateGame(roomId) {
-  // TODO generate questions according to all of the game rules
   const commonSongIds = new Set();
   const commonArtistIds = new Set();
   for (const [playerId, player] of Object.entries(games[roomId].players)) {
@@ -81,7 +80,11 @@ async function generateGame(roomId) {
     ids: selectedSongIds.join(","),
   });
 
+  const allowExplicit = games[roomId].gameRules.allowExplicit;
   for (const song of trackResponse.tracks) {
+    if (!allowExplicit && song.explicit === true) {
+      continue;
+    }
     if (song.preview_url !== null) {
       games[roomId].songBank.push({
         id: song.id,
@@ -162,6 +165,25 @@ async function addPlayerToGame(roomId, player) {
   console.log(`player ${playerId} joined room ${roomId}`);
 }
 
+function getPlayers(roomId) {
+  if (!games.hasOwnProperty(roomId)) {
+    throw new Error("Invalid roomId");
+  }
+  const players = Object.values(games[roomId].players);
+  // filter out info about players personal listening history
+  const playersFiltered = players.map(
+    ({ topSongIds, topArtistIds, ...other }) => other,
+  );
+  return playersFiltered;
+}
+
+function getHostPlayerId(roomId) {
+  if (!games.hasOwnProperty(roomId)) {
+    throw new Error("Invalid roomId");
+  }
+  return games[roomId].hostPlayerId;
+}
+
 function removePlayerFromGame(roomId, playerId) {
   if (games.hasOwnProperty(roomId)) {
     console.log(games[roomId].players);
@@ -177,4 +199,6 @@ module.exports = {
   getRoom,
   addPlayerToGame,
   removePlayerFromGame,
+  getPlayers,
+  getHostPlayerId,
 };
