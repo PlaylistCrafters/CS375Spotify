@@ -2,38 +2,20 @@ import React from "react";
 import "./RoundResultsScreen.css";
 const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId, socket }) => {
   // TODO display current leader board and also indicate if the current user got the answer correct
-  
-  const [countdownNextQuestion, setCountdownNextQuestion] = useState(40);
-  useEffect(() => {
-    let countdownNextQuestionInterval;
-
-    if (countdownNextQuestion > 0) {
-      countdownNextQuestionInterval = setInterval(() => {
-        setCountdownNextQuestion((prevCountdown) => prevCountdown - 1);
-      }, 1000);
-    }
-
-    return () => {
-      clearInterval(countdownNextQuestionInterval);
-    };
-  }, [countdownNextQuestion]);
-
-  useEffect(() => {
-    setCountdownNextQuestion(30); 
-  }, [roundResult]);
-
-  useEffect(() => {
-    const handleNextQuestion = (nextQuestion) => {
-      setQuestion(nextQuestion);
-      setCountdownNextQuestion(40);
-    };
-    socket.on("nextQuestion", handleNextQuestion);
-    return () => {
-      socket.off("nextQuestion", handleNextQuestion);
-    };
-  }, [socket]);
-  
   const sortedPlayers = players.slice().sort((a, b) => b.points - a.points);
+  const [countdown, setCountdown] = useState(10);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+      
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [countdown]);
 
   return (
     <div>
