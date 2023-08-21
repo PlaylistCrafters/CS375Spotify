@@ -20,7 +20,7 @@ const redirect_uri = `${serverProtocol}${serverHost}:${serverPort}/callback`;
 async function makeSpotifyRequest(endpoint, accessToken, queryParams = {}) {
   let url = BASE_URL + endpoint;
 
-  if (queryParams !== null && Object.keys(queryParams).length === 0) {
+  if (queryParams !== null && Object.keys(queryParams).length !== 0) {
     url += `?${querystring.stringify(queryParams)}`;
   }
 
