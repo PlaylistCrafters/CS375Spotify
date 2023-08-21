@@ -14,7 +14,7 @@ export default function Home() {
     const handleJoin  = async(event) => {
         event.preventDefault();
 
-        let code = event.target.code;
+        let code = event.target.code.value;
         const endpoint = `/api/rooms/${code}`;
         const response = await fetch(`${serverProtocol}${serverHost}:${serverPort}${endpoint}`);
         setErrorMessage("");
