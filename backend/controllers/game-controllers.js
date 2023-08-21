@@ -198,6 +198,9 @@ const startRound = (io, roomId) => {
   const currentQuestion = game.questions[game.currentQuestionIndex];
   // TODO instead of deleting correct answer off original game object, create a new object with all the same fields except for the correct answer
   // delete currentQuestion[correctAnswer];
+  console.log("questions");
+  console.log();
+  console.log(game.questions);
   io.to(roomId).emit("nextQuestion", currentQuestion);
 
   const roundDuration = game.gameRules.snippetLength;

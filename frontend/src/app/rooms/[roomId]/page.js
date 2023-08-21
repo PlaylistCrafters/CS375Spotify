@@ -44,7 +44,8 @@ function Page() {
       router.push("/");
     });
 
-    socket.on("nextQuestion", () => {
+    socket.on("nextQuestion", (questionData) => {
+      console.log(questionData);
       // TODO update question with setQuestion
       console.log("change screen");
       setScreen(questionScreen);
