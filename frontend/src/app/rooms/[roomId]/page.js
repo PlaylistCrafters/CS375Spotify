@@ -60,10 +60,6 @@ function Page() {
     };
   }, []);
 
-  useEffect(() => {
-    socket.emit("startGame");
-  });
-
   const startGameFunc = () => {
     // TODO emit startGame event
   };
