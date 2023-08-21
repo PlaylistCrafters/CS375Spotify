@@ -1,19 +1,24 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Home() {
+    const [errorMessage, setErrorMessage] = useState('');
+    const serverProtocol = process.env.SERVER_PROTOCOL;
+    const serverHost = process.env.SERVER_HOST;
+    const serverPort = process.env.SERVER_PORT;
+
     const router = useRouter();
 
     const handleSubmit = async(event) => {
         event.preventDefault();
         
-        let snippetLength = document.getElementsByName("sLength").value;
-        let rounds = document.getElementsByName("rounds").value;
-        let explicit = document.getElementById("explicit").value;
-        let powerups = document.getElementById("powerups").value;
-        let gameRules = [snippetLength, rounds, explicit, powerups];
-        const data = JSON.stringify({gameRules: gameRules});
+        let gameRules = {"snippetLengt": event.target.sLength.value,
+            "rounds": event.target.rounds.value,
+            "allowExplicit": event.target.explicit.value};
+
+        const data = JSON.stringify(gameRules);
 
         const endpoint = '/api/rooms';
 
@@ -24,15 +29,17 @@ export default function Home() {
             },
             body: data,
         }
+        console.log(serverPort);
 
-        const response = await fetch(endpoint, options);
-        document.getElementById("message").textContent = "";
+        const response = await fetch(`${serverProtocol}${serverHost}:${serverPort}${endpoint}`, options);
+        setErrorMessage("");
 
         if (response.status === 200) {
+            let id = response.json();
             router.push(`/rooms/${id}`)
         }
         else {
-            document.getElementById("message").textcontent = "unable to create room";
+            setErrorMessage("Unable to create Room")
         }
     }
 
@@ -54,7 +61,7 @@ export default function Home() {
                         <button id="create" type="submit">Create Room</button>
                         </form>
                 </div>
-                <div id="message"></div>
+                <div id="message">{errorMessage}</div>
             </div>
     );
     
