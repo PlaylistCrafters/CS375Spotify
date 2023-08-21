@@ -42,7 +42,10 @@ function getRoom(req, res) {
   if (!games.hasOwnProperty(req.params.roomId)) {
     return res.status(404).json({ error: "room not found" });
   }
-  return res.json({ id: roomId, gameRules: games[req.query.roomId].gameRules });
+  return res.json({
+    id: req.params.roomId,
+    gameRules: games[req.params.roomId].gameRules,
+  });
 }
 
 async function generateGame(roomId) {
