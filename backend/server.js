@@ -73,9 +73,6 @@ io.on("connection", (socket) => {
   socket.on("startGame", () => {
     try {
       const roomId = socket.roomId;
-      if (!games[roomId]) {
-        throw new Error("Invalid roomId");
-      }
       generateGame(roomId);
       startRound(io, roomId);
     } catch (error) {
