@@ -71,10 +71,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("startGame", () => {
+  socket.on("startGame", async () => {
     try {
       const roomId = socket.roomId;
-      generateGame(roomId);
+      await generateGame(roomId);
       startRound(io, roomId);
     } catch (error) {
       console.error("Error starting game:", error);
