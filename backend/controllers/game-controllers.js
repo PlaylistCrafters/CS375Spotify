@@ -194,10 +194,95 @@ function removePlayerFromGame(roomId, playerId) {
     }
   }
 }
+function test() {
+  const exampleGame = {
+    id: "asv34a",  // randomly generated string for room id
+    gameRules: {
+      rounds: 10,  // number of rounds
+      snippetLength: 30,  // seconds up to 30
+      allowExplicit: false,  // boolean of whether to allow explicit songs in the question pool
+    },
+    players: {
+      // key is spotify ID
+      "asdfg2394fa": {
+        id: "asdfg2394fa",
+        displayName: "Larry",
+        topSongIds: ["1", "2", "3", "4"],
+        topArtistIds:  ["1", "2", "3", "4"],
+        points: 2,
+        isHost: true,
+      },
+      "bgh4123131": {
+        id: "bgh4123131",
+        displayName: "Barry",
+        topSongIds: ["2", "3"],
+        topArtistIds:  ["1", "4"],
+        points: 3,
+        isHost: true,
+      },
+    },
+    questions: [
+      {
+        questionType: "song",
+        prompt: "What song is this?",
+        songUrl: "http://spotify/linktomp3for1",
+        correctAnswer: "song1",
+        answerChoices: ["song1", "song2", "song3", "song4"],
+      },
+      {
+        questionType: "artist",
+        prompt: "What artist(s) sang this song?",
+        songUrl: "http://spotify/linktomp3for2",
+        correctAnswer: "artist2",
+        answerChoices: ["artist1", "artist2", "artist3", "artist4"],
+      },
+    ],
+    roundHistory: [
+      {
+        "questionNum": 1,
+        "playerRankings": ["asdfg2394fa", "bgh4123131"]  // asdfg2394fa answered correct first (gets 2 points), bgh4123131 answered correct second (gets 1 point)
+      },
+      {
+        "questionNum": 2,
+        "playerRankings": ["bgh4123131"]  // only bgh4123131 answered correct (gets 2 points)
+      },
+    ],
+    songBank: [
+      {
+        id: "1",
+        name: "song1",
+        artist: "artist1",
+        mp3Url: "http://spotify/linktomp3for1",
+      },
+      {
+        id: "2",
+        name: "song2",
+        artist: "artist2",
+        mp3Url: "http://spotify/linktomp3for2",
+      },
+      {
+        id: "3",
+        name: "song3",
+        artist: "artist3",
+        mp3Url: "http://spotify/linktomp3for3",
+      },
+      {
+        id: "4",
+        name: "song4",
+        artist: "artist4",
+        mp3Url: "http://spotify/linktomp3for4",
+      },
+    ],
+    hostPlayerId: "asdfg2394fa",
+  };
+  games["asv34a"] = exampleGame;
+}
 
 const startRound = (io, roomId) => {
   const game = games[roomId];
   const currentQuestion = game.questions[game.currentQuestionIndex];
+  delete currentQuestion[correctAnswer];
+  console.log()
   io.to(roomId).emit("nextQuestion", currentQuestion);
 
   const roundDuration = game.gameRules.snippetLength;
@@ -259,4 +344,5 @@ module.exports = {
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
+  test,
 };

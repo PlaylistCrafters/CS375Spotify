@@ -31,8 +31,10 @@ function Page() {
     socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 
+    socket.emit("test");
+
     socket.emit("joinRoom", {
-      roomId: roomId,
+      roomId: "asv34a",
       player: { playerId: playerId, displayName: displayName },
     });
 
@@ -42,10 +44,21 @@ function Page() {
       router.push("/");
     });
 
+    socket.on("nextQuestion", () => {
+      console.log("change screen");
+      setScreen(questionScreen);
+
+    });
+
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    socket.emit("startGame");
+
+  });
 
   const startGameFunc = () => {
     // TODO emit startGame event

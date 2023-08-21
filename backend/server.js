@@ -37,6 +37,8 @@ const {
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
+  getRoom,
+  test,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -72,7 +74,11 @@ io.on("connection", (socket) => {
 
   socket.on("startGame", () => {
     try {
-      const roomId = socket.roomId;
+      //const roomId = socket.roomId;
+      const roomId = "asv34a";
+      console.log(roomId);
+      let games = [];
+      games["asv34a"] = true;
       if (!games[roomId]) {
         throw new Error("Invalid roomId");
       }
@@ -91,9 +97,14 @@ io.on("connection", (socket) => {
     }
   });
 
+  //For testing purposes
   socket.on("test", () => {
-    socket.join();
-    console.log("this is a test");
+    test();
+  });
+  
+
+  socket.on("nextQuestion", () => {
+    console.log("nextQuestion");
   });
 });
 
