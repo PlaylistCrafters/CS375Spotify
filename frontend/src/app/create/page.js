@@ -14,7 +14,7 @@ export default function Home() {
     const handleSubmit = async(event) => {
         event.preventDefault();
         
-        let gameRules = {"snippetLengt": event.target.sLength.value,
+        let gameRules = {"snippetLength": event.target.sLength.value,
             "rounds": event.target.rounds.value,
             "allowExplicit": event.target.explicit.value};
 
@@ -35,8 +35,9 @@ export default function Home() {
         setErrorMessage("");
 
         if (response.status === 200) {
-            let id = response.json();
-            router.push(`/rooms/${id}`)
+            response.json().then((body) => {
+                router.push(`/rooms/${body.roomId}`)
+            });
         }
         else {
             setErrorMessage("Unable to create Room")
