@@ -1,53 +1,43 @@
-require("dotenv").config();
+const {
+  generateRandomString,
+} = require("../controllers/common-controllers.js");
+
+const axios = require("axios");
+const querystring = require("node:querystring");
+
+const BASE_URL = "https://api.spotify.com/v1";
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
+const serverProtocol = process.env.SERVER_PROTOCOL;
+const serverHost = process.env.SERVER_HOST;
+const serverPort = process.env.SERVER_PORT;
+const clientProtocol = process.env.CLIENT_PROTOCOL;
+const clientHost = process.env.CLIENT_HOST;
+const clientPort = process.env.CLIENT_PORT;
+const redirect_uri = `${serverProtocol}${serverHost}:${serverPort}/callback`;
 
-const axios = require("axios");
-
-const BASE_URL = "https://api.spotify.com/v1";
-const redirect_uri = "http://localhost:3001/callback"; // TODO: source this from .env for dev and prod environments
-const querystring = require("node:querystring");
-
-function generateRandomString(len) {
-  let text = "";
-  let possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < len; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
-  return text;
-}
-
-const makeSpotifyRequest = (
-  endpoint,
-  queryParams = {},
-  body = {},
-  access_token,
-) => {
+async function makeSpotifyRequest(endpoint, accessToken, queryParams = {}) {
   let url = BASE_URL + endpoint;
 
-  if (queryParams != null) {
-    url += querystring.stringify(queryParams);
+  if (queryParams !== null && Object.keys(queryParams).length === 0) {
+    url += `?${querystring.stringify(queryParams)}`;
   }
 
   let config = {
     headers: {
-      Authorization: `Bearer ${access_token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   };
 
-  axios
-    .get(url, config)
-    .then((response) => {
-      return response.data;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-};
+  try {
+    const response = await axios.get(url, config);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data from Spotify API:", error.message);
+    throw error;
+  }
+}
 
 const authorize = (req, res) => {
   const state = generateRandomString(16);
@@ -94,21 +84,37 @@ const callback = async (req, res) => {
     };
 
     axios(authOptions)
-      .then((response) => {
-        res.cookie("accessToken", response.data.access_token, {
-          maxAge: response.data.expires_in,
-          secure: true,
-        });
-        res.redirect("/");
+      .then(async (response) => {
+        makeSpotifyRequest("/me", response.data.access_token, null)
+          .then((userData) => {
+            res.cookie("accessToken", response.data.access_token, {
+              maxAge: response.data.expires_in * 1000,
+              secure: true,
+            });
+            res.cookie("playerId", userData.id, {
+              maxAge: response.data.expires_in * 1000,
+              secure: true,
+            });
+            res.cookie("displayName", userData.display_name, {
+              maxAge: response.data.expires_in * 1000,
+              secure: true,
+            });
+
+            res.redirect(`${clientProtocol}${clientHost}:${clientPort}/`);
+          })
+          .catch((error) => {
+            console.error("Error getting user profile: ", error);
+            throw error;
+          });
       })
       .catch((error) => {
-        console.error("Error getting access token:", error);
-        res.status(500).send("Error getting access token");
+        console.error("Error connecting with spotify: ", error);
+        res.status(500).send("Error connecting with spotify");
       });
   }
 };
 
-const clientCredentials = () => {
+const clientCredentials = async () => {
   const authOptions = {
     url: "https://accounts.spotify.com/api/token",
     method: "post",
@@ -123,16 +129,21 @@ const clientCredentials = () => {
     json: true,
   };
 
-  axios(authOptions)
-    .then((response) => {
-      return response.data.access_token;
-    })
-    .catch((error) => {
-      return null;
-    });
+  try {
+    const response = await axios(authOptions);
+    return response.data.access_token;
+  } catch (error) {
+    console.error(
+      "Error fetching client credentials access token from Spotify:",
+      error.message,
+    );
+    throw error;
+  }
 };
 
 module.exports = {
   authorize,
   callback,
+  makeSpotifyRequest,
+  clientCredentials,
 };
