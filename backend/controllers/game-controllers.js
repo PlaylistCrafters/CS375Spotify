@@ -130,7 +130,6 @@ function createQuestions(questionSongs, songBank) {
       correctAnswer = questionSong.artist;
       otherAnswerChoices = otherSongs.map((song) => song.artist);
     }
-    console.log("other songs:", otherSongs);
     questions.push({
       questionType: questionType,
       prompt: questionTypes[questionType].prompt,
@@ -186,7 +185,6 @@ function getHostPlayerId(roomId) {
 
 function removePlayerFromGame(roomId, playerId) {
   if (games.hasOwnProperty(roomId)) {
-    console.log(games[roomId].players);
     if (games[roomId].players.hasOwnProperty(playerId)) {
       delete games[roomId].players[playerId];
       console.log(`player ${playerId} removed from room ${roomId}`);
