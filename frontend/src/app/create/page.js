@@ -30,6 +30,7 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: data,
+      credentials: "include",
     };
     console.log(serverPort);
 
