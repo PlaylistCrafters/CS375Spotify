@@ -29,7 +29,6 @@ function Page() {
     const accessToken = Cookies.get("accessToken");
     const playerId = Cookies.get("playerId");
     const displayName = Cookies.get("displayName");
-
     socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 

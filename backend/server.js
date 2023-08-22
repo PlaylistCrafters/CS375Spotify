@@ -48,7 +48,6 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", async ({ roomId, player }) => {
     try {
-      console.log("test");
       await addPlayerToGame(roomId, {
         ...player,
         accessToken: socket.handshake.headers["accesstoken"],
@@ -69,13 +68,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("startGame", async ({ roomId }) => {
-    //TODO: Need to ensure startGame message is received properly
     try {
       await generateGame(roomId);
       console.log("Game started for room:", roomId);
     } catch (error) {
       console.log({ event: "startGame", error: error });
-      io.to(socket.id).emit("joinRoomError");
     }
   });
 });
