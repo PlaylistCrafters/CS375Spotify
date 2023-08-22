@@ -22,7 +22,7 @@ const questionTypes = {
 };
 
 function createRoom(req, res) {
-  const gameRules = req.body.gameRules;
+  const gameRules = req.body;
   const roomId = generateRandomString(6);
   const game = {
     id: roomId,
@@ -51,7 +51,7 @@ function getRoom(req, res) {
 
 async function generateGame(roomId) {
   const commonSongIds = new Set();
-  const commonArtistIds = new Set();
+  let commonArtistIds = new Set();
   for (const [playerId, player] of Object.entries(games[roomId].players)) {
     for (const songId of player.topSongIds) {
       commonSongIds.add(songId);
@@ -64,6 +64,8 @@ async function generateGame(roomId) {
   const accessToken = await clientCredentials();
 
   const songBankIds = new Set(commonSongIds);
+  // Limit number of common artists per game
+  commonArtistIds = new Set([...commonArtistIds].slice(0, 10));
   for (const artistId of commonArtistIds) {
     const artistTopTracks = await makeSpotifyRequest(
       `/artists/${artistId}/top-tracks`,
@@ -75,7 +77,7 @@ async function generateGame(roomId) {
     }
   }
 
-  // Grab up to 50 random songs (Spotify's limit)
+  // Grab up to 50 random songs (Spotify's limit for one single request)
   const selectedSongIds = getXRandomItems(songBankIds, 50);
   const trackResponse = await makeSpotifyRequest("/tracks", accessToken, {
     ids: selectedSongIds.join(","),
@@ -131,7 +133,6 @@ function createQuestions(questionSongs, songBank) {
       correctAnswer = questionSong.artist;
       otherAnswerChoices = otherSongs.map((song) => song.artist);
     }
-    console.log("other songs:", otherSongs);
     questions.push({
       questionType: questionType,
       prompt: questionTypes[questionType].prompt,
@@ -187,7 +188,6 @@ function getHostPlayerId(roomId) {
 
 function removePlayerFromGame(roomId, playerId) {
   if (games.hasOwnProperty(roomId)) {
-    console.log(games[roomId].players);
     if (games[roomId].players.hasOwnProperty(playerId)) {
       delete games[roomId].players[playerId];
       console.log(`player ${playerId} removed from room ${roomId}`);

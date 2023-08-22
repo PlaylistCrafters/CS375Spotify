@@ -3,8 +3,20 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 
+const serverPort = process.env.SERVER_PORT;
+const clientProtocol = process.env.CLIENT_PROTOCOL;
+const clientHost = process.env.CLIENT_HOST;
+const clientPort = process.env.CLIENT_PORT;
+
 app.use(express.json());
-app.use(require("cors")());
+const cors = require("cors");
+app.use(
+  cors({
+    origin: `${clientProtocol}${clientHost}:${clientPort}`,
+    methods: ["GET", "POST"],
+    credentials: true,
+  }),
+);
 app.use(require("cookie-parser")());
 
 const spotifyRoutes = require("./routes/spotify-routes.js");
@@ -16,11 +28,6 @@ app.use(gameRoutes);
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-
-const serverPort = process.env.SERVER_PORT;
-const clientProtocol = process.env.CLIENT_PROTOCOL;
-const clientHost = process.env.CLIENT_HOST;
-const clientPort = process.env.CLIENT_PORT;
 
 const io = new Server(server, {
   cors: {
@@ -70,9 +77,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("startGame", async () => {
+  socket.on("startGame", async ({ roomId }) => {
     try {
-      const roomId = socket.roomId;
       await generateGame(roomId);
       startRound(io, roomId);
     } catch (error) {

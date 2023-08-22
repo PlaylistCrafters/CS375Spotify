@@ -7,25 +7,50 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { push } = useRouter();
-  const [showSpotifyButton, setShowSpotifyButton] = useState(true);
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const serverProtocol = process.env.SERVER_PROTOCOL;
+  const serverHost = process.env.SERVER_HOST;
+  const serverPort = process.env.SERVER_PORT;
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
-    setShowSpotifyButton(!!accessToken);
+    setIsAuthenticated(!!accessToken);
+    setIsLoading(false);
   }, []);
 
-  const loginSpotify = () => {
-    const serverProtocol = process.env.SERVER_PROTOCOL;
-    const serverHost = process.env.SERVER_HOST;
-    const serverPort = process.env.SERVER_PORT;
-    push(`${serverProtocol}${serverHost}:${serverPort}/login`);
+  const handleRedirect = (redirectTo) => {
+    router.push(redirectTo);
   };
+
+  if (isLoading) {
+    // Returning a blank screen until we have checked if the user is authenticated
+    return <div></div>;
+  }
 
   return (
     <main className={styles.main}>
-      {!showSpotifyButton && (
-        <button onClick={loginSpotify}>Login with Spotify</button>
+      <div>
+        Invite your friends to a song showdown! Create or join a game room and
+        challenge other players. Compete in real-time to see who can correctly
+        answer questions about song titles and artists, all while racing against
+        the clock.
+      </div>
+
+      {isAuthenticated ? (
+        <div>
+          <button onClick={() => handleRedirect("/create")}>Create Room</button>
+          <button onClick={() => handleRedirect("/join")}>Join Room</button>
+        </div>
+      ) : (
+        <button
+          onClick={() =>
+            handleRedirect(`${serverProtocol}${serverHost}:${serverPort}/login`)
+          }
+        >
+          Login with Spotify
+        </button>
       )}
 
       <div className={styles.description}>

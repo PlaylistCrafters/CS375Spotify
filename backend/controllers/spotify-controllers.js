@@ -20,7 +20,7 @@ const redirect_uri = `${serverProtocol}${serverHost}:${serverPort}/callback`;
 async function makeSpotifyRequest(endpoint, accessToken, queryParams = {}) {
   let url = BASE_URL + endpoint;
 
-  if (queryParams !== null && Object.keys(queryParams).length === 0) {
+  if (queryParams !== null && Object.keys(queryParams).length !== 0) {
     url += `?${querystring.stringify(queryParams)}`;
   }
 
@@ -89,15 +89,12 @@ const callback = async (req, res) => {
           .then((userData) => {
             res.cookie("accessToken", response.data.access_token, {
               maxAge: response.data.expires_in * 1000,
-              secure: true,
             });
             res.cookie("playerId", userData.id, {
               maxAge: response.data.expires_in * 1000,
-              secure: true,
             });
             res.cookie("displayName", userData.display_name, {
               maxAge: response.data.expires_in * 1000,
-              secure: true,
             });
 
             res.redirect(`${clientProtocol}${clientHost}:${clientPort}/`);
