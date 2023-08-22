@@ -31,6 +31,7 @@ function createRoom(req, res) {
     questions: [],
     roundHistory: [],
     songBank: [],
+    currentQuestionIndex: 0,
     hostPlayerId: req.cookies.playerId,
   };
   games[roomId] = game;
@@ -42,7 +43,6 @@ function getRoom(req, res) {
   if (!games.hasOwnProperty(req.params.roomId)) {
     return res.status(404).json({ error: "room not found" });
   }
-
   return res.json({
     id: req.params.roomId,
     gameRules: games[req.params.roomId].gameRules,
@@ -195,10 +195,67 @@ function removePlayerFromGame(roomId, playerId) {
   }
 }
 
+const startRound = (io, roomId) => {
+  const game = games[roomId];
+  const currentQuestion = game.questions[game.currentQuestionIndex];
+  io.to(roomId).emit("nextQuestion", currentQuestion);
+
+  const roundDuration = game.gameRules.snippetLength;
+  let timeLeft = roundDuration;
+  const timer = setInterval(() => {
+    io.to(roomId).emit("timerTick", { timeLeft });
+    timeLeft--;
+
+    if (timeLeft < 0) {
+      clearInterval(timer);
+      io.to(roomId).emit("roundEnded");
+
+      setTimeout(() => {
+        if (game.currentQuestionIndex < game.questions.length - 1) {
+          game.currentQuestionIndex++;
+          startRound(io, roomId);
+        } else {
+          endGame(io, roomId);
+        }
+      }, 5000);
+    }
+  }, 1000);
+};
+
+const endGame = (io, roomId) => {
+  // TODO
+};
+
+function evaluatePlayerAnswer(roomId, playerId, answer) {
+  const game = games[roomId];
+  const currentQuestionIndex = game.currentQuestionIndex;
+  const question = game.questions[currentQuestionIndex];
+  const isCorrect = answer === question.correctAnswer;
+
+  if (isCorrect) {
+    if (!game.roundHistory[currentQuestionIndex]) {
+      game.roundHistory[currentQuestionIndex] = { playerRankings: [] };
+    }
+
+    game.roundHistory[currentQuestionIndex].playerRankings.push(playerId);
+
+    // Calculate points based on player rankings
+    const highestPossiblePoints = Object.keys(game.players).length;
+    const pointsToEarn =
+      highestPossiblePoints -
+      game.roundHistory[currentQuestionIndex].playerRankings.length;
+    game.players[playerId].points += pointsToEarn;
+  }
+}
+
 module.exports = {
   createRoom,
   getRoom,
+  generateGame,
   addPlayerToGame,
+  evaluatePlayerAnswer,
+  startRound,
+  endGame,
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,

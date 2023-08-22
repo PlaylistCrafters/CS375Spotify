@@ -38,6 +38,9 @@ const io = new Server(server, {
 
 const {
   addPlayerToGame,
+  evaluatePlayerAnswer,
+  generateGame,
+  startRound,
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
@@ -77,9 +80,17 @@ io.on("connection", (socket) => {
   socket.on("startGame", async ({ roomId }) => {
     try {
       await generateGame(roomId);
-      console.log("Game started for room:", roomId);
+      startRound(io, roomId);
     } catch (error) {
-      console.log({ event: "startGame", error: error });
+      console.error("Error starting game:", error);
+    }
+  });
+
+  socket.on("submitAnswer", ({ answer }) => {
+    try {
+      evaluatePlayerAnswer(socket.roomId, socket.playerId, answer);
+    } catch (error) {
+      console.error("Error submitting answer:", error);
     }
   });
 });
