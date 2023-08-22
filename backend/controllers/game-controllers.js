@@ -22,7 +22,7 @@ const questionTypes = {
 };
 
 function createRoom(req, res) {
-  const gameRules = req.body.gameRules;
+  const gameRules = req.body;
   const roomId = generateRandomString(6);
   const game = {
     id: roomId,
@@ -42,13 +42,16 @@ function getRoom(req, res) {
   if (!games.hasOwnProperty(req.params.roomId)) {
     return res.status(404).json({ error: "room not found" });
   }
-  return res.json({ id: roomId, gameRules: games[req.query.roomId].gameRules });
+
+  return res.json({
+    id: req.params.roomId,
+    gameRules: games[req.params.roomId].gameRules,
+  });
 }
 
 async function generateGame(roomId) {
-  // TODO generate questions according to all of the game rules
   const commonSongIds = new Set();
-  const commonArtistIds = new Set();
+  let commonArtistIds = new Set();
   for (const [playerId, player] of Object.entries(games[roomId].players)) {
     for (const songId of player.topSongIds) {
       commonSongIds.add(songId);
@@ -61,6 +64,8 @@ async function generateGame(roomId) {
   const accessToken = await clientCredentials();
 
   const songBankIds = new Set(commonSongIds);
+  // Limit number of common artists per game
+  commonArtistIds = new Set([...commonArtistIds].slice(0, 10));
   for (const artistId of commonArtistIds) {
     const artistTopTracks = await makeSpotifyRequest(
       `/artists/${artistId}/top-tracks`,
@@ -72,13 +77,17 @@ async function generateGame(roomId) {
     }
   }
 
-  // Grab up to 50 random songs (Spotify's limit)
+  // Grab up to 50 random songs (Spotify's limit for one single request)
   const selectedSongIds = getXRandomItems(songBankIds, 50);
   const trackResponse = await makeSpotifyRequest("/tracks", accessToken, {
     ids: selectedSongIds.join(","),
   });
 
+  const allowExplicit = games[roomId].gameRules.allowExplicit;
   for (const song of trackResponse.tracks) {
+    if (!allowExplicit && song.explicit === true) {
+      continue;
+    }
     if (song.preview_url !== null) {
       games[roomId].songBank.push({
         id: song.id,
@@ -124,7 +133,7 @@ function createQuestions(questionSongs, songBank) {
       correctAnswer = questionSong.artist;
       otherAnswerChoices = otherSongs.map((song) => song.artist);
     }
-    console.log("other songs:", otherSongs);
+
     questions.push({
       questionType: questionType,
       prompt: questionTypes[questionType].prompt,
@@ -180,7 +189,6 @@ function getHostPlayerId(roomId) {
 
 function removePlayerFromGame(roomId, playerId) {
   if (games.hasOwnProperty(roomId)) {
-    console.log(games[roomId].players);
     if (games[roomId].players.hasOwnProperty(playerId)) {
       delete games[roomId].players[playerId];
       console.log(`player ${playerId} removed from room ${roomId}`);
