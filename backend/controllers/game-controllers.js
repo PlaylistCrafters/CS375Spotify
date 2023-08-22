@@ -133,7 +133,6 @@ function createQuestions(questionSongs, songBank) {
       correctAnswer = questionSong.artist;
       otherAnswerChoices = otherSongs.map((song) => song.artist);
     }
-
     questions.push({
       questionType: questionType,
       prompt: questionTypes[questionType].prompt,
