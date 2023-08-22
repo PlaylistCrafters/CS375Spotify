@@ -38,7 +38,6 @@ function Page() {
     });
 
     socket.on("updateLobby", ({ players, hostPlayerId }) => {
-      console.log("updatedLobby");
       setPlayers(players);
       setIsHost(hostPlayerId === playerId);
     });
