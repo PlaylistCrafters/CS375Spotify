@@ -75,7 +75,9 @@ function Page() {
   };
 
   const onSelectAnswer = (answer) => {
-    console.log(answer);
+    socket.emit("submitAnswer", {
+      answer: answer,
+    });
   };
 
   const displayScreen = () => {
