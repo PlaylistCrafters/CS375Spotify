@@ -74,8 +74,8 @@ function Page() {
     // TODO emit startGame event
   };
 
-  const onSelectAnswer = () => {
-    // TODO emit answer event
+  const onSelectAnswer = (answer) => {
+    console.log(answer);
   };
 
   const displayScreen = () => {
