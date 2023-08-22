@@ -9,7 +9,7 @@ const LobbyScreen = ({ players, startGameFunc, isHost }) => {
       <h1>Lobby Screen</h1>
       <ul>
         {players.map((player, index) => (
-          <li key={index}>{player.name}</li>
+          <li key={index}>{player.displayName}</li>
         ))}
       </ul>
       <div>{isHost && <button onClick={startGameFunc}>Start Game</button>}</div>
