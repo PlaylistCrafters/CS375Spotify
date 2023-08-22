@@ -42,6 +42,7 @@ function getRoom(req, res) {
   if (!games.hasOwnProperty(req.params.roomId)) {
     return res.status(404).json({ error: "room not found" });
   }
+
   return res.json({
     id: req.params.roomId,
     gameRules: games[req.params.roomId].gameRules,
@@ -132,6 +133,7 @@ function createQuestions(questionSongs, songBank) {
       correctAnswer = questionSong.artist;
       otherAnswerChoices = otherSongs.map((song) => song.artist);
     }
+
     questions.push({
       questionType: questionType,
       prompt: questionTypes[questionType].prompt,
