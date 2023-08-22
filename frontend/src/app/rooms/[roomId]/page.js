@@ -5,10 +5,10 @@ import LobbyScreen from "@/components/LobbyScreen";
 import QuestionScreen from "@/components/QuestionScreen";
 import RoundResultsScreen from "@/components/RoundResultScreen";
 import { useParams } from "next/navigation";
+import Cookies from "js-cookie";
+import socket from "@/app/socket";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import io from "socket.io-client";
-
-let socket;
 
 const lobbyScreen = "lobbyScreen";
 const questionScreen = "questionScreen";
@@ -17,6 +17,7 @@ const endScreen = "endScreen";
 
 function Page() {
   const { roomId } = useParams();
+  const router = useRouter();
 
   const [screen, setScreen] = useState(null);
   const [question, setQuestion] = useState(null);
@@ -24,9 +25,22 @@ function Page() {
   const [roundResult, setRoundResult] = useState(null);
 
   useEffect(() => {
-    // TODO: Use environment variable
-    socket = io("http://localhost:3001");
-    socket.emit("joinRoom", roomId);
+    const accessToken = Cookies.get("accessToken");
+    const playerId = Cookies.get("playerId");
+    const displayName = Cookies.get("displayName");
+    socket.io.opts.extraHeaders["accessToken"] = accessToken;
+    socket.connect();
+
+    socket.emit("joinRoom", {
+      roomId: roomId,
+      player: { playerId: playerId, displayName: displayName },
+    });
+
+    socket.on("joinRoomError", () => {
+      console.log(`Error joining room ${roomId}`);
+      console.log("Returning to home page");
+      router.push("/");
+    });
 
     return () => {
       socket.disconnect();
