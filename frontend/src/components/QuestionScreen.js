@@ -4,13 +4,15 @@ import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 
 let socket;
-let roomId = "asv34a";
 
-function setDisplay() {}
 
 export default function Home() {
   const [displayQuestion, setDisplay] = useState(true);
-  const [emitCount, sendEmit] = useState(0);
+  const [answer, sendAnswer] = useState(null);
+
+  useEffect(() => {
+
+  }, [answer]);
 
 
   return (
@@ -22,6 +24,7 @@ export default function Home() {
 }
 
 const QuestionScreen = ({ question, onSelectAnswer }) => {
+  console.log("from questionScreen " + question);
   // TODO display question and answer choices
   // TODO call onSelectAnswer upon clicking answer choice (pass in answer string)
   return <div>Question Screen</div>;

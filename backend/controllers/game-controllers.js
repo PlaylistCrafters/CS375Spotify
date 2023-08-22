@@ -197,11 +197,13 @@ const startRound = (io, roomId) => {
   const game = games[roomId];
   const currentQuestion = game.questions[game.currentQuestionIndex];
   // TODO instead of deleting correct answer off original game object, create a new object with all the same fields except for the correct answer
-  // delete currentQuestion[correctAnswer];
-  console.log("questions");
+  const sentQuestion = JSON.parse(JSON.stringify(currentQuestion));
+  delete sentQuestion["correctAnswer"];
+  /*
+  console.log("questions" + game.questions.length);
   console.log();
-  console.log(game.questions);
-  io.to(roomId).emit("nextQuestion", currentQuestion);
+  console.log(game.questions);*/
+  io.to(roomId).emit("sentQuestion", sentQuestion);
 
   const roundDuration = game.gameRules.snippetLength;
   let timeLeft = roundDuration;
@@ -216,8 +218,10 @@ const startRound = (io, roomId) => {
       setTimeout(() => {
         if (game.currentQuestionIndex < game.questions.length - 1) {
           game.currentQuestionIndex++;
-          startRound(io, roomId);
+          console.log("blah");
+          io.to(roomId).emit("startNextRound");
         } else {
+          console.log("engGame");
           endGame(io, roomId);
         }
       }, 5000);

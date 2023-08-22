@@ -31,7 +31,6 @@ function Page() {
     socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 
-    socket.emit("test");
 
     socket.emit("joinRoom", {
       roomId: roomId,
@@ -44,16 +43,26 @@ function Page() {
       router.push("/");
     });
 
-    socket.on("nextQuestion", (questionData) => {
+    socket.on("sentQuestion", (questionData) => {
       console.log(questionData);
       // TODO update question with setQuestion
       console.log("change screen");
+      setQuestion(questionData);
       setScreen(questionScreen);
     });
 
     // TODO delete this code, added for testing purposes
     socket.on("updateLobby", (obj) => {
+      console.log("update lobby");
       socket.emit("startGame");
+    });
+
+    socket.on("roundEnded", () => {
+      setScreen(roundResultsScreen);
+    });
+
+    socket.on("startNextRound", () => {
+      socket.emit("nextQuestion");
     });
 
     return () => {

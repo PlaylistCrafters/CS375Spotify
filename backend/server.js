@@ -73,6 +73,7 @@ io.on("connection", (socket) => {
 
   socket.on("startGame", async () => {
     try {
+      console.log("start game");
       const roomId = socket.roomId;
       await generateGame(roomId);
       startRound(io, roomId);
@@ -90,13 +91,12 @@ io.on("connection", (socket) => {
   });
 
   // TODO For testing purposes, remove later
-  // socket.on("test", () => {
-  //   test();
-  // });
 
-  // socket.on("nextQuestion", () => {
-  //   console.log("nextQuestion");
-  // });
+   socket.on("nextQuestion", () => {
+    const roomId = socket.roomId;
+    startRound(io, roomId);
+     console.log("nextQuestion Server");
+   });
 });
 
 server.listen(serverPort, () => {
