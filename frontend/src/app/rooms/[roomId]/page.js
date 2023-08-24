@@ -43,10 +43,8 @@ function Page() {
       router.push("/");
     });
 
-    socket.on("sentQuestion", (questionData) => {
+    socket.on("nextQuestion", (questionData) => {
       console.log(questionData);
-      // TODO update question with setQuestion
-      console.log("change screen");
       setQuestion(questionData);
       setScreen(questionScreen);
     });
@@ -61,17 +59,13 @@ function Page() {
       setScreen(roundResultsScreen);
     });
 
-    socket.on("startNextRound", () => {
-      socket.emit("nextQuestion");
-    });
-
     return () => {
       socket.disconnect();
     };
   }, []);
 
   const startGameFunc = () => {
-    // TODO emit startGame event
+    socket.emit("startGame");
   };
 
   const onSelectAnswer = (answer) => {

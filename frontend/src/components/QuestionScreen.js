@@ -1,11 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import io from "socket.io-client";
-
-let socket;
-
-
 
 const QuestionScreen = ({ question, onSelectAnswer }) => {
   console.log("from questionScreen " + question);
