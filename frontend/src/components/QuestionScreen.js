@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-const QuestionScreen = ({ question, onSelectAnswer }) => {
+const QuestionScreen = ({ question, onSelectAnswer, timer }) => {
   console.log("from questionScreen " + question);
   const prompt = question["prompt"];
   const choices = question["answerChoices"];
@@ -12,6 +12,7 @@ const QuestionScreen = ({ question, onSelectAnswer }) => {
   // TODO call onSelectAnswer upon clicking answer choice (pass in answer string)
   return (
     <div>Question Screen
+      <div>Time Left: {timer}</div>
       <div>{prompt}</div>
       <div>
         <audio controls autoPlay>

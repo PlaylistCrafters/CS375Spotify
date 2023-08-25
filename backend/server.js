@@ -94,14 +94,6 @@ io.on("connection", (socket) => {
       console.error("Error submitting answer:", error);
     }
   });
-
-  // TODO For testing purposes, remove later
-
-   socket.on("nextQuestion", () => {
-    const roomId = socket.roomId;
-    startRound(io, roomId);
-     console.log("nextQuestion Server");
-   });
 });
 
 server.listen(serverPort, () => {

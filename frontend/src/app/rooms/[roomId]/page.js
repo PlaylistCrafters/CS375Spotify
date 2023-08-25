@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import socket from "@/app/socket";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { CLIENT_STATIC_FILES_RUNTIME_REACT_REFRESH } from "next/dist/shared/lib/constants";
 
 const lobbyScreen = "lobbyScreen";
 const questionScreen = "questionScreen";
@@ -21,6 +22,7 @@ function Page() {
 
   const [screen, setScreen] = useState(lobbyScreen);
   const [question, setQuestion] = useState(null);
+  const [timer, setTimer] = useState(null);
   const [players, setPlayers] = useState([]);
   const [roundResult, setRoundResult] = useState(null);
   const [isHost, setIsHost] = useState(false);
@@ -54,10 +56,8 @@ function Page() {
       setScreen(questionScreen);
     });
 
-    // TODO delete this code, added for testing purposes
-    socket.on("updateLobby", (obj) => {
-      console.log("update lobby");
-      socket.emit("startGame");
+    socket.on("timerTick", (time) => {
+      setTimer(time);
     });
 
     socket.on("roundEnded", () => {
@@ -99,7 +99,7 @@ function Page() {
         );
       case questionScreen:
         return (
-          <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} />
+          <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} timer={timer}/>
         );
       case roundResultsScreen:
         return (

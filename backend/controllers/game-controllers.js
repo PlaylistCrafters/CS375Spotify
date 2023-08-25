@@ -51,7 +51,7 @@ function getRoom(req, res) {
 
 async function generateGame(roomId) {
   const commonSongIds = new Set();
-  const commonArtistIds = new Set();
+  let commonArtistIds = new Set();
   for (const [playerId, player] of Object.entries(games[roomId].players)) {
     for (const songId of player.topSongIds) {
       commonSongIds.add(songId);
