@@ -56,8 +56,8 @@ function Page() {
       setScreen(questionScreen);
     });
 
-    socket.on("timerTick", (time) => {
-      setTimer(time);
+    socket.on("timerTick", ({timeLeft}) => {
+      setTimer(timeLeft);
     });
 
     socket.on("roundEnded", () => {
