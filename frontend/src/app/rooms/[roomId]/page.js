@@ -19,10 +19,11 @@ function Page() {
   const { roomId } = useParams();
   const router = useRouter();
 
-  const [screen, setScreen] = useState(null);
+  const [screen, setScreen] = useState(lobbyScreen);
   const [question, setQuestion] = useState(null);
-  const [players, setPlayers] = useState(null);
+  const [players, setPlayers] = useState([]);
   const [roundResult, setRoundResult] = useState(null);
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
@@ -31,10 +32,14 @@ function Page() {
     socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 
-
     socket.emit("joinRoom", {
       roomId: roomId,
       player: { playerId: playerId, displayName: displayName },
+    });
+
+    socket.on("updateLobby", ({ players, hostPlayerId }) => {
+      setPlayers(players);
+      setIsHost(hostPlayerId === playerId);
     });
 
     socket.on("joinRoomError", () => {
@@ -62,10 +67,18 @@ function Page() {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [roomId]);
+
+  const kickPlayer = (playerId) => {
+    if (isHost) {
+      socket.emit("kickPlayer", { playerId: playerId });
+    }
+  };
 
   const startGameFunc = () => {
-    socket.emit("startGame");
+    if (isHost) {
+      socket.emit("startGame", { roomId: roomId });
+    }
   };
 
   const onSelectAnswer = (answer) => {
@@ -77,7 +90,13 @@ function Page() {
   const displayScreen = () => {
     switch (screen) {
       case lobbyScreen:
-        return <LobbyScreen players={players} startGameFunc={startGameFunc} />;
+        return (
+          <LobbyScreen
+            players={players}
+            startGameFunc={startGameFunc}
+            isHost={isHost}
+          />
+        );
       case questionScreen:
         return (
           <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} />

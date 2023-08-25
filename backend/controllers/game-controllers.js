@@ -64,6 +64,8 @@ async function generateGame(roomId) {
   const accessToken = await clientCredentials();
 
   const songBankIds = new Set(commonSongIds);
+  // Limit number of common artists per game
+  commonArtistIds = new Set([...commonArtistIds].slice(0, 10));
   for (const artistId of commonArtistIds) {
     const artistTopTracks = await makeSpotifyRequest(
       `/artists/${artistId}/top-tracks`,
@@ -75,7 +77,7 @@ async function generateGame(roomId) {
     }
   }
 
-  // Grab up to 50 random songs (Spotify's limit)
+  // Grab up to 50 random songs (Spotify's limit for one single request)
   const selectedSongIds = getXRandomItems(songBankIds, 50);
   const trackResponse = await makeSpotifyRequest("/tracks", accessToken, {
     ids: selectedSongIds.join(","),
@@ -215,7 +217,6 @@ const startRound = (io, roomId) => {
           game.currentQuestionIndex++;
           startRound(io, roomId);
         } else {
-          console.log("engGame");
           endGame(io, roomId);
         }
       }, 5000);
