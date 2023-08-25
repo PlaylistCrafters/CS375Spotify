@@ -48,6 +48,10 @@ function Page() {
       router.push("/");
     });
 
+    socket.on("finishGame", () => {
+      setScreen(endScreen);
+    });
+
     return () => {
       socket.disconnect();
     };

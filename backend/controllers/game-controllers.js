@@ -223,7 +223,8 @@ const startRound = (io, roomId) => {
 };
 
 const endGame = (io, roomId) => {
-  // TODO
+  delete games[roomId];
+  io.to(roomId).emit("finishGame");
 };
 
 function evaluatePlayerAnswer(roomId, playerId, answer) {
