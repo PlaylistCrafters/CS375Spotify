@@ -2,9 +2,6 @@
 import "./RoundResultScreen.css";
 
 const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId, timer, correctAnswer }) => {
-
-    const sortedPlayers = players?.slice().sort((a, b) => b.points - a.points);
-
     return (
         <div>
             <h2>Round Results</h2>
