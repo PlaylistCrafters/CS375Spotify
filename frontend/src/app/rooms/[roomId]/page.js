@@ -60,9 +60,9 @@ function Page() {
       setTimer(timeLeft);
     });
 
-    socket.on("roundEnded", () => {
-      console.log(roundResult);
-      setRoundResult(roundResult);
+    socket.on("roundEnded", ({updatedPlayers, roundPlayerRankings}) => {
+      setPlayers(updatedPlayers);
+      setRoundResult(roundPlayerRankings);
       setScreen(roundResultsScreen);
     });
 
