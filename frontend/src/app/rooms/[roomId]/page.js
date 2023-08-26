@@ -105,7 +105,7 @@ function Page() {
         );
       case roundResultsScreen:
         return (
-          <RoundResultsScreen players={players} roundResult={roundResult} />
+          <RoundResultsScreen players={players} roundResult={roundResult} currentUserPlayerId={Cookies.get("playerId")} timer={timer} />
         );
       case endScreen:
         return <EndScreen players={players} />;
