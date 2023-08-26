@@ -247,6 +247,11 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
       highestPossiblePoints -
       game.roundHistory[currentQuestionIndex].playerRankings.length;
     game.players[playerId].points += pointsToEarn;
+    
+    const roundResult = {
+      correctPlayers: game.roundHistory[currentQuestionIndex].playerRankings,
+    };
+    io.to(roomId).emit("roundEnded", roundResult);
   }
 }
 
