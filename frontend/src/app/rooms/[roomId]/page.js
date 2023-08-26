@@ -26,6 +26,7 @@ function Page() {
   const [players, setPlayers] = useState([]);
   const [roundResult, setRoundResult] = useState(null);
   const [isHost, setIsHost] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
