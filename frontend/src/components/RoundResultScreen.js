@@ -1,7 +1,7 @@
 
 import "./RoundResultScreen.css";
 
-const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId, timer }) => {
+const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId, timer, correctAnswer }) => {
 
     const sortedPlayers = players?.slice().sort((a, b) => b.points - a.points);
 
@@ -9,6 +9,7 @@ const RoundResultsScreen = ({ players, roundResult, currentUserPlayerId, timer }
         <div>
             <h2>Round Results</h2>
             <div>Time Left: {timer} seconds</div>
+            <div>Correct Answer: {correctAnswer}</div>
             <ul>
                 {sortedPlayers.map((player) => (
                     <li key={player.id}>
