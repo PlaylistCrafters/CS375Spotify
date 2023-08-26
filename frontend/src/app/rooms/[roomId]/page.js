@@ -61,6 +61,8 @@ function Page() {
     });
 
     socket.on("roundEnded", () => {
+      console.log(roundResult);
+      setRoundResult(roundResult);
       setScreen(roundResultsScreen);
     });
 
