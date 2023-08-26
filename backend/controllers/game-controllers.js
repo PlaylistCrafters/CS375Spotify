@@ -256,7 +256,7 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
     game.roundHistory[currentQuestionIndex].playerRankings.push(playerId);
 
     // Calculate points based on player rankings
-    const highestPossiblePoints = Object.keys(game.players).length;
+    const highestPossiblePoints = Object.keys(game.players).length + 1;
     const pointsToEarn =
       highestPossiblePoints -
       game.roundHistory[currentQuestionIndex].playerRankings.length;
