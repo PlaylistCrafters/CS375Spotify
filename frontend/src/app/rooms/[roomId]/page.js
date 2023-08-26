@@ -56,8 +56,9 @@ function Page() {
       setScreen(questionScreen);
     });
 
-    socket.on("timerTick", ({timeLeft}) => {
+    socket.on("timerTick", ({timeLeft, correctAnswer}) => {
       setTimer(timeLeft);
+      setCorrectAnswer(correctAnswer);
     });
 
     socket.on("roundEnded", ({updatedPlayers, roundPlayerRankings}) => {
