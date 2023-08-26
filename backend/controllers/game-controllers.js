@@ -219,7 +219,10 @@ const startRound = (io, roomId) => {
       let roundTransitionTimeLeft = 10;
       const roundTransitionTimer = setInterval(() => {
         //console.log("Sending timer tick for round transition:", roundTransitionTimeLeft);
-        io.to(roomId).emit("timerTick", { timeLeft: roundTransitionTimeLeft });
+        io.to(roomId).emit("timerTick", {
+          timeLeft: roundTransitionTimeLeft,
+          correctAnswer: currentQuestion.correctAnswer,
+        });
 
         roundTransitionTimeLeft--;
 
