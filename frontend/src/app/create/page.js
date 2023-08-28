@@ -35,7 +35,7 @@ export default function Home() {
     let gameRules = {
       snippetLength: snippetLength,
       rounds: rounds,
-      allowExplicit: allowExplicit,
+      allowExplicit: allowExplicit === "yes",
     };
 
     const data = JSON.stringify(gameRules);
