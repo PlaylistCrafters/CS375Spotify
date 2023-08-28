@@ -15,10 +15,27 @@ export default function Home() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    const snippetLength = event.target.sLength.value;
+    const rounds = event.target.rounds.value;
+    const allowExplicit = event.target.explicit.value;
+
+    if (snippetLength < 15 || snippetLength > 30) {
+        setErrorMessage("Snippet length must be between 15-30 seconds");
+        return;
+    }
+    if (rounds < 1 || rounds > 10) {
+        setErrorMessage("The amount of arounds must be between 1-10");
+        return;
+    }
+    if (allowExplicit !== "yes" && allowExplicit !== "no") {
+        setErrorMessage("The explicit value must be Yes or No");
+        return;
+    }
+
     let gameRules = {
-      snippetLength: event.target.sLength.value,
-      rounds: event.target.rounds.value,
-      allowExplicit: event.target.explicit.value,
+      snippetLength: snippetLength,
+      rounds: rounds,
+      allowExplicit: allowExplicit,
     };
 
     const data = JSON.stringify(gameRules);
@@ -84,7 +101,7 @@ export default function Home() {
           </button>
         </form>
       </div>
-      <div id="message">{errorMessage}</div>
+      <div id="message" style={{color: 'red'}}>{errorMessage}</div>
     </div>
   );
 }
