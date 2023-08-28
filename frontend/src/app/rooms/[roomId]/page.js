@@ -57,15 +57,19 @@ function Page() {
       setScreen(questionScreen);
     });
 
-    socket.on("timerTick", ({timeLeft, correctAnswer}) => {
+    socket.on("timerTick", ({ timeLeft, correctAnswer }) => {
       setTimer(timeLeft);
       setCorrectAnswer(correctAnswer);
     });
 
-    socket.on("roundEnded", ({updatedPlayers, roundPlayerRankings}) => {
+    socket.on("roundEnded", ({ updatedPlayers, roundPlayerRankings }) => {
       setPlayers(updatedPlayers);
       setRoundResult(roundPlayerRankings);
       setScreen(roundResultsScreen);
+    });
+
+    socket.on("finishGame", () => {
+      setScreen(endScreen);
     });
 
     return () => {
@@ -103,11 +107,21 @@ function Page() {
         );
       case questionScreen:
         return (
-          <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} timer={timer}/>
+          <QuestionScreen
+            question={question}
+            onSelectAnswer={onSelectAnswer}
+            timer={timer}
+          />
         );
       case roundResultsScreen:
         return (
-          <RoundResultsScreen players={players} roundResult={roundResult} currentUserPlayerId={Cookies.get("playerId")} timer={timer} correctAnswer={correctAnswer} />
+          <RoundResultsScreen
+            players={players}
+            roundResult={roundResult}
+            currentUserPlayerId={Cookies.get("playerId")}
+            timer={timer}
+            correctAnswer={correctAnswer}
+          />
         );
       case endScreen:
         return <EndScreen players={players} />;

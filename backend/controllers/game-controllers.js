@@ -211,10 +211,14 @@ const startRound = (io, roomId) => {
     if (timeLeft < 0) {
       clearInterval(roundTimer);
 
-      const playerRankings = game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
+      const playerRankings =
+        game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
       const playersArray = Object.values(game.players);
       const updatedPlayers = playersArray.sort((a, b) => b.points - a.points);
-      io.to(roomId).emit("roundEnded", { updatedPlayers: updatedPlayers, roundPlayerRankings: playerRankings});
+      io.to(roomId).emit("roundEnded", {
+        updatedPlayers: updatedPlayers,
+        roundPlayerRankings: playerRankings,
+      });
 
       let roundTransitionTimeLeft = 10;
       const roundTransitionTimer = setInterval(() => {
@@ -242,7 +246,8 @@ const startRound = (io, roomId) => {
 };
 
 const endGame = (io, roomId) => {
-  // TODO
+  delete games[roomId];
+  io.to(roomId).emit("finishGame");
 };
 
 function evaluatePlayerAnswer(roomId, playerId, answer) {
@@ -264,7 +269,6 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
       highestPossiblePoints -
       game.roundHistory[currentQuestionIndex].playerRankings.length;
     game.players[playerId].points += pointsToEarn;
-
   }
 }
 

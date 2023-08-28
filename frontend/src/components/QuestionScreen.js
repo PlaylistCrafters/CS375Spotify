@@ -11,7 +11,8 @@ const QuestionScreen = ({ question, onSelectAnswer, timer }) => {
   // TODO display question and answer choices
   // TODO call onSelectAnswer upon clicking answer choice (pass in answer string)
   return (
-    <div>Question Screen
+    <div>
+      Question Screen
       <div>Time Left: {timer}</div>
       <div>{prompt}</div>
       <div>
@@ -20,13 +21,15 @@ const QuestionScreen = ({ question, onSelectAnswer, timer }) => {
         </audio>
       </div>
       <div>
-        <button onClick={() => onSelectAnswer(choices[0])}>{choices[0]}</button><br/>
-        <button onClick={() => onSelectAnswer(choices[1])}>{choices[1]}</button><br/>
-        <button onClick={() => onSelectAnswer(choices[2])}>{choices[2]}</button><br/>
-        <button onClick={() => onSelectAnswer(choices[3])}>{choices[3]}</button><br/>
-
+        <button onClick={() => onSelectAnswer(choices[0])}>{choices[0]}</button>
+        <br />
+        <button onClick={() => onSelectAnswer(choices[1])}>{choices[1]}</button>
+        <br />
+        <button onClick={() => onSelectAnswer(choices[2])}>{choices[2]}</button>
+        <br />
+        <button onClick={() => onSelectAnswer(choices[3])}>{choices[3]}</button>
+        <br />
       </div>
-
     </div>
   );
 };
