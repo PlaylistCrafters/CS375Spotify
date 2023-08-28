@@ -23,7 +23,7 @@ const QuestionScreen = ({ question, onSelectAnswer, timer }) => {
       <div>Time Left: {timer}</div>
       <div>{prompt}</div>
       <div>
-        <audio controls={false} autoPlay>
+        <audio controls autoPlay>
           <source src={url} type="audio/mpeg"></source>
         </audio>
       </div>
