@@ -26,6 +26,7 @@ function Page() {
   const [players, setPlayers] = useState([]);
   const [roundResult, setRoundResult] = useState(null);
   const [isHost, setIsHost] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
@@ -56,12 +57,19 @@ function Page() {
       setScreen(questionScreen);
     });
 
-    socket.on("timerTick", ({timeLeft}) => {
+    socket.on("timerTick", ({ timeLeft, correctAnswer }) => {
       setTimer(timeLeft);
+      setCorrectAnswer(correctAnswer);
     });
 
-    socket.on("roundEnded", () => {
+    socket.on("roundEnded", ({ updatedPlayers, roundPlayerRankings }) => {
+      setPlayers(updatedPlayers);
+      setRoundResult(roundPlayerRankings);
       setScreen(roundResultsScreen);
+    });
+
+    socket.on("finishGame", () => {
+      setScreen(endScreen);
     });
 
     return () => {
@@ -99,11 +107,21 @@ function Page() {
         );
       case questionScreen:
         return (
-          <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} timer={timer}/>
+          <QuestionScreen
+            question={question}
+            onSelectAnswer={onSelectAnswer}
+            timer={timer}
+          />
         );
       case roundResultsScreen:
         return (
-          <RoundResultsScreen players={players} roundResult={roundResult} />
+          <RoundResultsScreen
+            players={players}
+            roundResult={roundResult}
+            currentUserPlayerId={Cookies.get("playerId")}
+            timer={timer}
+            correctAnswer={correctAnswer}
+          />
         );
       case endScreen:
         return <EndScreen players={players} />;

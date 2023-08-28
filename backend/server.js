@@ -77,7 +77,6 @@ io.on("connection", (socket) => {
     }
   });
 
-
   socket.on("startGame", async ({ roomId }) => {
     try {
       await generateGame(roomId);
