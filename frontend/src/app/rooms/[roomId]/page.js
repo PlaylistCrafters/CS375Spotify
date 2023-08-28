@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import socket from "@/app/socket";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { CLIENT_STATIC_FILES_RUNTIME_REACT_REFRESH } from "next/dist/shared/lib/constants";
 
 const lobbyScreen = "lobbyScreen";
 const questionScreen = "questionScreen";
@@ -21,9 +22,11 @@ function Page() {
 
   const [screen, setScreen] = useState(lobbyScreen);
   const [question, setQuestion] = useState(null);
+  const [timer, setTimer] = useState(null);
   const [players, setPlayers] = useState([]);
   const [roundResult, setRoundResult] = useState(null);
   const [isHost, setIsHost] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
@@ -48,6 +51,23 @@ function Page() {
       router.push("/");
     });
 
+    socket.on("nextQuestion", (questionData) => {
+      console.log(questionData);
+      setQuestion(questionData);
+      setScreen(questionScreen);
+    });
+
+    socket.on("timerTick", ({ timeLeft, correctAnswer }) => {
+      setTimer(timeLeft);
+      setCorrectAnswer(correctAnswer);
+    });
+
+    socket.on("roundEnded", ({ updatedPlayers, roundPlayerRankings }) => {
+      setPlayers(updatedPlayers);
+      setRoundResult(roundPlayerRankings);
+      setScreen(roundResultsScreen);
+    });
+
     socket.on("finishGame", () => {
       setScreen(endScreen);
     });
@@ -69,8 +89,10 @@ function Page() {
     }
   };
 
-  const onSelectAnswer = () => {
-    // TODO emit answer event
+  const onSelectAnswer = (answer) => {
+    socket.emit("submitAnswer", {
+      answer: answer,
+    });
   };
 
   const displayScreen = () => {
@@ -85,11 +107,21 @@ function Page() {
         );
       case questionScreen:
         return (
-          <QuestionScreen question={question} onSelectAnswer={onSelectAnswer} />
+          <QuestionScreen
+            question={question}
+            onSelectAnswer={onSelectAnswer}
+            timer={timer}
+          />
         );
       case roundResultsScreen:
         return (
-          <RoundResultsScreen players={players} roundResult={roundResult} />
+          <RoundResultsScreen
+            players={players}
+            roundResult={roundResult}
+            currentUserPlayerId={Cookies.get("playerId")}
+            timer={timer}
+            correctAnswer={correctAnswer}
+          />
         );
       case endScreen:
         return <EndScreen players={players} />;

@@ -198,26 +198,49 @@ function removePlayerFromGame(roomId, playerId) {
 const startRound = (io, roomId) => {
   const game = games[roomId];
   const currentQuestion = game.questions[game.currentQuestionIndex];
-  io.to(roomId).emit("nextQuestion", currentQuestion);
+  const sentQuestion = JSON.parse(JSON.stringify(currentQuestion));
+  delete sentQuestion["correctAnswer"];
+  io.to(roomId).emit("nextQuestion", sentQuestion);
 
   const roundDuration = game.gameRules.snippetLength;
   let timeLeft = roundDuration;
-  const timer = setInterval(() => {
+  const roundTimer = setInterval(() => {
     io.to(roomId).emit("timerTick", { timeLeft });
     timeLeft--;
 
     if (timeLeft < 0) {
-      clearInterval(timer);
-      io.to(roomId).emit("roundEnded");
+      clearInterval(roundTimer);
 
-      setTimeout(() => {
-        if (game.currentQuestionIndex < game.questions.length - 1) {
-          game.currentQuestionIndex++;
-          startRound(io, roomId);
-        } else {
-          endGame(io, roomId);
+      const playerRankings =
+        game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
+      const playersArray = Object.values(game.players);
+      const updatedPlayers = playersArray.sort((a, b) => b.points - a.points);
+      io.to(roomId).emit("roundEnded", {
+        updatedPlayers: updatedPlayers,
+        roundPlayerRankings: playerRankings,
+      });
+
+      let roundTransitionTimeLeft = 10;
+      const roundTransitionTimer = setInterval(() => {
+        //console.log("Sending timer tick for round transition:", roundTransitionTimeLeft);
+        io.to(roomId).emit("timerTick", {
+          timeLeft: roundTransitionTimeLeft,
+          correctAnswer: currentQuestion.correctAnswer,
+        });
+
+        roundTransitionTimeLeft--;
+
+        if (roundTransitionTimeLeft < 0) {
+          clearInterval(roundTransitionTimer);
+
+          if (game.currentQuestionIndex < game.questions.length - 1) {
+            game.currentQuestionIndex++;
+            startRound(io, roomId);
+          } else {
+            endGame(io, roomId);
+          }
         }
-      }, 5000);
+      }, 1000);
     }
   }, 1000);
 };
@@ -241,7 +264,7 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
     game.roundHistory[currentQuestionIndex].playerRankings.push(playerId);
 
     // Calculate points based on player rankings
-    const highestPossiblePoints = Object.keys(game.players).length;
+    const highestPossiblePoints = Object.keys(game.players).length + 1;
     const pointsToEarn =
       highestPossiblePoints -
       game.roundHistory[currentQuestionIndex].playerRankings.length;
