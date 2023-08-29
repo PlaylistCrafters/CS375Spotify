@@ -2,6 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import styles from "./Join.module.css";
+import { Ubuntu } from '@next/font/google';
+
+const ubuntu = Ubuntu({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+});
 
 export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -28,16 +35,16 @@ export default function Home() {
   };
 
   return (
-    <div>
-      <h1>Join Room</h1>
+    <main className={ubuntu.className}>
+    <div className={styles.wrapper}>
+      <div className={styles.header}>Join Room</div>
       <form onSubmit={handleJoin}>
-        <label>Room code:</label>
-        <input id="code" type="text" />
-        <button id="join" type="submit">
-          Join
-        </button>
+        <input className={styles.input} id="code" type="text" placeholder="Room Code"/>
+        <br/>
+        <button className={styles.joinBtn} type="submit">Join</button>
       </form>
-      <div id="message">{errorMessage}</div>
+      <div className={styles.error}>{errorMessage}</div>
     </div>
+    </main>
   );
 }

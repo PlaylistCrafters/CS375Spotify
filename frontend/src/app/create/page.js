@@ -1,7 +1,14 @@
 "use client";
 
+import { Ubuntu } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import styles from "./Create.module.css";
+
+const ubuntu = Ubuntu({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+});
 
 export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -23,7 +30,7 @@ export default function Home() {
         return;
     }
     if (rounds < 1 || rounds > 10) {
-        setErrorMessage("The amount of arounds must be between 1-10");
+        setErrorMessage("The amount of rounds must be between 1-10");
         return;
     }
     if (allowExplicit !== "yes" && allowExplicit !== "no") {
@@ -67,19 +74,16 @@ export default function Home() {
   };
 
   return (
-    <div id="pageContainer">
+    <main className={ubuntu.className}>
+    <div className={styles.wrapper}>
       <div id="settings">
-        <h1>Settings</h1>
+        <div className={styles.header}>Settings</div>
         <form onSubmit={handleSubmit}>
-          <label>
-            Snippet Length (Seconds): <input type="number" name="sLength" />
-          </label>
+            <input className={styles.textInput} id={styles.snippetLabel} type="number" name="sLength" placeholder="Snippet Length (Seconds)"/>
           <br />
-          <label>
-            Number of Rounds: <input type="number" name="rounds" />
-          </label>
+            <input className={styles.textInput} id={styles.roundLabel} type="number" name="rounds" placeholder="Number of Rounds"/>
           <br />
-          <label>
+          <label className={styles.dropdownInput} id={styles.explicitLabel}>
             Allow Explicit Songs{" "}
             <select id="explicit">
               <option value="yes">Yes</option>
@@ -87,7 +91,7 @@ export default function Home() {
             </select>
           </label>
           <br />
-          <label>
+          <label className={styles.dropdownInput} id={styles.powerupsLabel}>
             Powerups{" "}
             <select id="powerups">
               <option value="yes">Yes</option>
@@ -95,12 +99,13 @@ export default function Home() {
             </select>
           </label>
           <br />
-          <button id="create" type="submit">
+          <button className={styles.create} id="create" type="submit">
             Create Room
           </button>
         </form>
       </div>
-      <div id="message" style={{color: 'red'}}>{errorMessage}</div>
+      <div className={styles.error} id="message">{errorMessage}</div>
     </div>
+    </main>
   );
 }
