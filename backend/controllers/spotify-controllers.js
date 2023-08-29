@@ -89,12 +89,15 @@ const callback = async (req, res) => {
           .then((userData) => {
             res.cookie("accessToken", response.data.access_token, {
               maxAge: response.data.expires_in * 1000,
+              domain: CLIENT_HOST,
             });
             res.cookie("playerId", userData.id, {
               maxAge: response.data.expires_in * 1000,
+              domain: CLIENT_HOST,
             });
             res.cookie("displayName", userData.display_name, {
               maxAge: response.data.expires_in * 1000,
+              domain: CLIENT_HOST,
             });
 
             res.redirect(`${clientProtocol}${clientHost}:${clientPort}/`);
