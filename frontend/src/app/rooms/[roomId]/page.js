@@ -27,6 +27,7 @@ function Page() {
   const [roundResult, setRoundResult] = useState(null);
   const [isHost, setIsHost] = useState(false);
   const [correctAnswer, setCorrectAnswer] = useState(null);
+  const [powerupStatus, setPowerupStatus] = useState(null);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
@@ -51,6 +52,24 @@ function Page() {
       router.push("/");
     });
 
+    socket.on("playerReceivedPowerup", ({ playerId, powerupType }) => {
+      console.log("entering playerReceivedPowerup");
+      console.log(`Received powerup '${powerupType}' for player with ID: ${playerId}`);
+      setPlayers((prevPlayers) => {
+        const updatedPlayers = prevPlayers.map((player) => {
+          if (player.id === playerId) {
+            console.log(`Updating powerup for player with ID: ${playerId}`);
+          }
+          return player.id === playerId ? { ...player, powerup: powerupType } : player;
+        });
+        console.log("Updated players:", updatedPlayers);
+        return updatedPlayers;
+      });
+    });
+
+    socket.on("powerupActivated", ({ powerupType }) => {
+      setPowerupStatus(null);
+    });
     socket.on("nextQuestion", (questionData) => {
       console.log(questionData);
       setQuestion(questionData);
@@ -121,6 +140,7 @@ function Page() {
             currentUserPlayerId={Cookies.get("playerId")}
             timer={timer}
             correctAnswer={correctAnswer}
+            powerupStatus={powerupStatus}
           />
         );
       case endScreen:
