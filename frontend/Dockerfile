@@ -27,11 +27,11 @@ RUN npm ci --include=dev
 # Copy application code
 COPY --link . .
 
-ENV SERVER_PROTOCOL="http://"
+ENV SERVER_PROTOCOL="https://"
 ENV SERVER_HOST="song-showdown-server.fly.dev"
 ENV SERVER_PORT="443"
 
-ENV CLIENT_PROTOCOL="http://"
+ENV CLIENT_PROTOCOL="https://"
 ENV CLIENT_HOST="song-showdown.fly.dev"
 ENV CLIENT_PORT="443"
 
