@@ -49,6 +49,19 @@ const {
 io.on("connection", (socket) => {
   console.log("user connected");
 
+  socket.on("activatePowerup", ({ playerId, powerupType }) => {
+    const game = games[socket.roomId];
+    const player = game.players[playerId];
+
+    if (player && player.powerup === powerupType) {
+
+      player.powerup = null;
+      io.to(playerId).emit("powerupActivated", {
+        powerupType: powerupType,
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("user disconnected");
     if (socket.roomId !== null && socket.playerId !== null) {
