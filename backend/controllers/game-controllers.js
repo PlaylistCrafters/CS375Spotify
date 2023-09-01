@@ -220,6 +220,38 @@ const startRound = (io, roomId) => {
         roundPlayerRankings: playerRankings,
       });
 
+      // Calculate player multipliers based on points
+      const playerMultipliers = updatedPlayers.map(
+          (player, index) => updatedPlayers.length - index
+      );
+
+      // Determine which player gets a powerup
+      let playerWithPowerupIndex = null;
+      let highestRoll = -1;
+
+      for (let i = 0; i < playerMultipliers.length; i++) {
+        const playerRoll = Math.floor(Math.random() * (6 * playerMultipliers[i] + 1));;
+        if (playerRoll > highestRoll) {
+          highestRoll = playerRoll;
+          playerWithPowerupIndex = i;
+        }
+      }
+
+      if (playerWithPowerupIndex !== null) {
+        console.log("Player with powerup index:", playerWithPowerupIndex);
+        // Determine the powerup type for the chosen player
+        const playerId = updatedPlayers[playerWithPowerupIndex].id;
+        const powerupType = rollForPowerupType();
+        if (powerupType) {
+          // Give the chosen player the determined powerup and emit the event
+          const powerupResult = givePlayerPowerup(game, playerId, powerupType);
+          if (powerupResult) {
+            console.log("Emitting powerupResult to playerReceivedPowerup");
+            io.to(playerId).emit("playerReceivedPowerup", powerupResult);
+          }
+        }
+      }
+
       let roundTransitionTimeLeft = 10;
       const roundTransitionTimer = setInterval(() => {
         //console.log("Sending timer tick for round transition:", roundTransitionTimeLeft);
@@ -272,6 +304,26 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
   }
 }
 
+const givePlayerPowerup = (game, playerId, powerupType) => {
+  console.log("Entering givePlayerPowerup function");
+  console.log("powerupType:", powerupType);
+  console.log("playerId:", playerId);
+  const player = game.players[playerId];
+  player.powerup = powerupType;
+  return { playerId, powerupType };
+};
+
+const rollForPowerupType = () => {
+  const d20Roll = Math.floor(Math.random() * 20) + 1;
+  if (d20Roll >= 1 && d20Roll <= 14) {
+    return "reduceChoices";
+  } else if (d20Roll >= 15 && d20Roll <= 19) {
+    return "pointMultiplier";
+  } else {
+    return "matchTopUser";
+  }
+};
+
 module.exports = {
   createRoom,
   getRoom,
@@ -283,4 +335,6 @@ module.exports = {
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
+  rollForPowerupType,
+  givePlayerPowerup,
 };
