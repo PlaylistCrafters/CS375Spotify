@@ -6,7 +6,21 @@ const RoundResultsScreen = ({
   currentUserPlayerId,
   timer,
   correctAnswer,
+  powerupStatus,
 }) => {
+  
+  const activatePowerup = () => {
+        console.log("Activate Powerup button clicked");
+        socket.emit("activatePowerup", {
+            playerId: currentUserPlayerId,
+            powerupType: powerupStatus,
+        });
+    };
+
+    const currentPlayer = players.find((player) => player.id === currentUserPlayerId);
+    const playerScore = currentPlayer ? currentPlayer.points : 0;
+    console.log("powerupStatus:", powerupStatus);
+  
   return (
     <div>
       <h2>Round Results</h2>
@@ -26,12 +40,10 @@ const RoundResultsScreen = ({
           </li>
         ))}
       </ul>
-      {currentUserPlayerId && (
-        <p>
-          Your score:{" "}
-          {players.find((player) => player.id === currentUserPlayerId)?.points}
-        </p>
-      )}
+      <p>Your score: {playerScore} points</p>
+            {powerupStatus && (
+                <button onClick={activatePowerup}>Activate Powerup</button>
+            )}
     </div>
   );
 };
