@@ -8,19 +8,20 @@ const RoundResultsScreen = ({
   correctAnswer,
   powerupStatus,
 }) => {
-  
   const activatePowerup = () => {
-        console.log("Activate Powerup button clicked");
-        socket.emit("activatePowerup", {
-            playerId: currentUserPlayerId,
-            powerupType: powerupStatus,
-        });
-    };
+    console.log("Activate Powerup button clicked");
+    socket.emit("activatePowerup", {
+      playerId: currentUserPlayerId,
+      powerupType: powerupStatus,
+    });
+  };
 
-    const currentPlayer = players.find((player) => player.id === currentUserPlayerId);
-    const playerScore = currentPlayer ? currentPlayer.points : 0;
-    console.log("powerupStatus:", powerupStatus);
-  
+  const currentPlayer = players.find(
+    (player) => player.id === currentUserPlayerId,
+  );
+  const playerScore = currentPlayer ? currentPlayer.points : 0;
+  console.log("powerupStatus:", powerupStatus);
+
   return (
     <div>
       <h2>Round Results</h2>
@@ -30,20 +31,20 @@ const RoundResultsScreen = ({
         {players.map((player) => (
           <li key={player.id}>
             {player.displayName}: {player.points} points <br />
-            {roundResult &&
-            player.id === currentUserPlayerId &&
-            roundResult.includes(player.id) ? (
-              <span className="green-indicator">Correct</span>
-            ) : (
-              <span className="red-indicator">Incorrect</span>
-            )}
           </li>
         ))}
+        <li>
+          {roundResult && roundResult.includes(currentUserPlayerId) ? (
+            <span className="green-indicator">Correct</span>
+          ) : (
+            <span className="red-indicator">Incorrect</span>
+          )}
+        </li>
       </ul>
       <p>Your score: {playerScore} points</p>
-            {powerupStatus && (
-                <button onClick={activatePowerup}>Activate Powerup</button>
-            )}
+      {powerupStatus && (
+        <button onClick={activatePowerup}>Activate Powerup</button>
+      )}
     </div>
   );
 };
