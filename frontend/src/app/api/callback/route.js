@@ -1,14 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import querystring from "querystring";
-import { cookies } from "next/headers";
 
 const BASE_URL = "https://api.spotify.com/v1";
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const serverProtocol = process.env.SERVER_PROTOCOL;
-const serverHost = process.env.SERVER_HOST;
-const serverPort = process.env.SERVER_PORT;
 const clientProtocol = process.env.CLIENT_PROTOCOL;
 const clientHost = process.env.CLIENT_HOST;
 const clientPort = process.env.CLIENT_PORT;

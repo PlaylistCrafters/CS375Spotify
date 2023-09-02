@@ -12,7 +12,9 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV="production"
 ENV PORT=8080
-ENV DEBUG=*
+
+# Uncomment below for debugging
+# ENV DEBUG=*
 
 
 # Throw-away build stage to reduce size of final image

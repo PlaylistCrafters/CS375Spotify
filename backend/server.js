@@ -20,10 +20,8 @@ app.use(
 );
 app.use(require("cookie-parser")());
 
-const spotifyRoutes = require("./routes/spotify-routes.js");
 const gameRoutes = require("./routes/game-routes.js");
 
-app.use(spotifyRoutes);
 app.use(gameRoutes);
 
 const http = require("http");
@@ -61,7 +59,7 @@ io.on("connection", (socket) => {
     try {
       await addPlayerToGame(roomId, {
         ...player,
-        accessToken: socket.handshake.headers["accesstoken"],
+        accessToken: socket.handshake.auth.token,
       });
       socket.roomId = roomId;
       socket.playerId = player.playerId;

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Cookies from "js-cookie";
 
 export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -17,27 +18,36 @@ export default function Home() {
     const snippetLength = event.target.sLength.value;
     const rounds = event.target.rounds.value;
     const allowExplicit = event.target.explicit.value;
+    const playerId = Cookies.get("playerId");
+
+    if (playerId === null) {
+      setErrorMessage("Need to login with Spotify");
+      return;
+    }
 
     if (snippetLength < 15 || snippetLength > 30) {
-        setErrorMessage("Snippet length must be between 15-30 seconds");
-        return;
+      setErrorMessage("Snippet length must be between 15-30 seconds");
+      return;
     }
     if (rounds < 1 || rounds > 10) {
-        setErrorMessage("The amount of arounds must be between 1-10");
-        return;
+      setErrorMessage("The amount of arounds must be between 1-10");
+      return;
     }
     if (allowExplicit !== "yes" && allowExplicit !== "no") {
-        setErrorMessage("The explicit value must be Yes or No");
-        return;
+      setErrorMessage("The explicit value must be Yes or No");
+      return;
     }
 
-    let gameRules = {
-      snippetLength: snippetLength,
-      rounds: rounds,
-      allowExplicit: allowExplicit === "yes",
+    const data = {
+      playerId: playerId,
+      gameRules: {
+        snippetLength: snippetLength,
+        rounds: rounds,
+        allowExplicit: allowExplicit === "yes",
+      },
     };
 
-    const data = JSON.stringify(gameRules);
+    const json = JSON.stringify(data);
 
     const endpoint = "/api/rooms";
 
@@ -46,10 +56,8 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: data,
-      credentials: "include",
+      body: json,
     };
-    console.log(serverPort);
 
     const response = await fetch(
       `${serverProtocol}${serverHost}:${serverPort}${endpoint}`,
@@ -100,7 +108,9 @@ export default function Home() {
           </button>
         </form>
       </div>
-      <div id="message" style={{color: 'red'}}>{errorMessage}</div>
+      <div id="message" style={{ color: "red" }}>
+        {errorMessage}
+      </div>
     </div>
   );
 }

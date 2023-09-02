@@ -22,7 +22,8 @@ const questionTypes = {
 };
 
 function createRoom(req, res) {
-  const gameRules = req.body;
+  const gameRules = req.body.gameRules;
+  const hostPlayerId = req.body.playerId;
   const roomId = generateRandomString(6);
   const game = {
     id: roomId,
@@ -32,7 +33,7 @@ function createRoom(req, res) {
     roundHistory: [],
     songBank: [],
     currentQuestionIndex: 0,
-    hostPlayerId: req.cookies.playerId,
+    hostPlayerId: hostPlayerId,
   };
   games[roomId] = game;
   console.log(`Created new room. ID: ${roomId}`);
