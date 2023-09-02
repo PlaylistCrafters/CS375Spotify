@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 
+const port = process.env.PORT || 3000;
 const serverPort = process.env.SERVER_PORT;
 const clientProtocol = process.env.CLIENT_PROTOCOL;
 const clientHost = process.env.CLIENT_HOST;
@@ -95,6 +96,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(serverPort, () => {
-  console.log(`listening on port: ${serverPort}`);
+server.listen(port, () => {
+  console.log(`listening on port: ${port}`);
 });
