@@ -21,6 +21,8 @@ export default function Home() {
   const handleJoin = async (event) => {
     event.preventDefault();
 
+    let errorSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/phmumiwe/Error.mp3');
+    let joinSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/pyawbnwv/Enter%20%26%20Back.mp3');
     let code = event.target.code.value;
     const endpoint = `/api/rooms/${code}`;
     const response = await fetch(
@@ -28,9 +30,11 @@ export default function Home() {
     );
     setErrorMessage("");
     if (response.status === 200) {
+      joinSound.play();
       router.push(`/rooms/${code}`);
     } else {
       setErrorMessage("Invalid Room");
+      errorSound.play();
     }
   };
 

@@ -21,20 +21,25 @@ export default function Home() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    let errorSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/phmumiwe/Error.mp3');
+    let settingsSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/udkyavrh/Settings.mp3');
     const snippetLength = event.target.sLength.value;
     const rounds = event.target.rounds.value;
     const allowExplicit = event.target.explicit.value;
 
     if (snippetLength < 15 || snippetLength > 30) {
         setErrorMessage("Snippet length must be between 15-30 seconds");
+        errorSound.play();
         return;
     }
     if (rounds < 1 || rounds > 10) {
         setErrorMessage("The amount of rounds must be between 1-10");
+        errorSound.play();
         return;
     }
     if (allowExplicit !== "yes" && allowExplicit !== "no") {
         setErrorMessage("The explicit value must be Yes or No");
+        errorSound.play();
         return;
     }
 
@@ -65,11 +70,13 @@ export default function Home() {
     setErrorMessage("");
 
     if (response.status === 200) {
+    settingsSound.play();
       response.json().then((body) => {
         router.push(`/rooms/${body.roomId}`);
       });
     } else {
-      setErrorMessage("Unable to create Room");
+        errorSound.play();
+        setErrorMessage("Unable to create Room");
     }
   };
 
