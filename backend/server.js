@@ -12,7 +12,7 @@ app.use(express.json());
 const cors = require("cors");
 app.use(
   cors({
-    origin: `${clientProtocol}${clientHost}:${clientPort}`,
+    origin: `${clientProtocol}${clientHost}`,
     methods: ["GET", "POST"],
     credentials: true,
   }),
@@ -31,8 +31,8 @@ const { Server } = require("socket.io");
 
 const io = new Server(server, {
   cors: {
-    origin: `${clientProtocol}${clientHost}:${clientPort}`,
-    methods: ["GET"],
+    origin: `${clientProtocol}${clientHost}`,
+    methods: ["GET", "POST"],
   },
 });
 
