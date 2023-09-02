@@ -16,6 +16,8 @@ const QuestionScreen = ({ question, onSelectAnswer, timer }) => {
   const url = question["songUrl"];
 
   function selectAnswer(answer) {
+    let selectAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/juafgbqe/This%20One.mp3');
+    selectAudio.play();
     onSelectAnswer(answer);
     setHasSelectedAnswer(true);
   }
