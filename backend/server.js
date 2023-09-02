@@ -4,7 +4,6 @@ const express = require("express");
 const app = express();
 
 const port = process.env.PORT || 3000;
-const serverPort = process.env.SERVER_PORT;
 const clientProtocol = process.env.CLIENT_PROTOCOL;
 const clientHost = process.env.CLIENT_HOST;
 const clientPort = process.env.CLIENT_PORT;
@@ -13,7 +12,10 @@ app.use(express.json());
 const cors = require("cors");
 app.use(
   cors({
-    origin: `${clientProtocol}${clientHost}`,
+    origin: [
+      `${clientProtocol}${clientHost}`,
+      `${clientProtocol}${clientHost}:${clientPort}`,
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   }),
@@ -30,7 +32,10 @@ const { Server } = require("socket.io");
 
 const io = new Server(server, {
   cors: {
-    origin: `${clientProtocol}${clientHost}`,
+    origin: [
+      `${clientProtocol}${clientHost}`,
+      `${clientProtocol}${clientHost}:${clientPort}`,
+    ],
     methods: ["GET", "POST"],
   },
 });
