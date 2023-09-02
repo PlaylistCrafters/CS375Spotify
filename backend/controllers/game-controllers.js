@@ -9,6 +9,7 @@ const {
 } = require("../controllers/spotify-controllers.js");
 
 let games = {};
+let answered = 0;
 
 const songQuestionType = "song";
 const artistQuestionType = "artist";
@@ -208,8 +209,9 @@ const startRound = (io, roomId) => {
     io.to(roomId).emit("timerTick", { timeLeft });
     timeLeft--;
 
-    if (timeLeft < 0) {
+    if (timeLeft < 0 || answered === Object.values(game.players).length) {
       clearInterval(roundTimer);
+      answered = 0;
 
       const playerRankings =
         game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
@@ -222,7 +224,7 @@ const startRound = (io, roomId) => {
 
       // Calculate player multipliers based on points
       const playerMultipliers = updatedPlayers.map(
-          (player, index) => updatedPlayers.length - index
+        (player, index) => updatedPlayers.length - index,
       );
 
       // Determine which player gets a powerup
@@ -230,7 +232,9 @@ const startRound = (io, roomId) => {
       let highestRoll = -1;
 
       for (let i = 0; i < playerMultipliers.length; i++) {
-        const playerRoll = Math.floor(Math.random() * (6 * playerMultipliers[i] + 1));;
+        const playerRoll = Math.floor(
+          Math.random() * (6 * playerMultipliers[i] + 1),
+        );
         if (playerRoll > highestRoll) {
           highestRoll = playerRoll;
           playerWithPowerupIndex = i;
@@ -287,6 +291,7 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
   const currentQuestionIndex = game.currentQuestionIndex;
   const question = game.questions[currentQuestionIndex];
   const isCorrect = answer === question.correctAnswer;
+  answered += 1;
 
   if (isCorrect) {
     if (!game.roundHistory[currentQuestionIndex]) {
