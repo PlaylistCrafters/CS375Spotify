@@ -47,13 +47,7 @@ export default function Home() {
           <button onClick={() => handleRedirect("/join")}>Join Room</button>
         </div>
       ) : (
-        <button
-          onClick={() =>
-            handleRedirect(
-              `${clientProtocol}${clientHost}:${clientPort}/api/login`,
-            )
-          }
-        >
+        <button onClick={() => handleRedirect("/api/login")}>
           Login with Spotify
         </button>
       )}
