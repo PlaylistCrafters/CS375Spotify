@@ -34,6 +34,7 @@ function createRoom(req, res) {
     songBank: [],
     currentQuestionIndex: 0,
     hostPlayerId: req.cookies.playerId,
+    gameStarted: false,
   };
   games[roomId] = game;
   console.log(`Created new room. ID: ${roomId}`);
@@ -149,6 +150,9 @@ async function addPlayerToGame(roomId, player) {
   if (!games.hasOwnProperty(roomId)) {
     throw new Error("Invalid roomId");
   }
+  if (games[roomId].gameStarted) {
+    throw new Error("Game is already in prgoress");
+  }
   const { playerId, accessToken, displayName } = player;
   const topSongs = await makeSpotifyRequest(`/me/top/tracks`, accessToken, {
     limit: 50,
@@ -197,11 +201,13 @@ function removePlayerFromGame(roomId, playerId) {
 }
 
 const startRound = (io, roomId) => {
-  const game = games[roomId];
+  let game = games[roomId];
   const currentQuestion = game.questions[game.currentQuestionIndex];
   const sentQuestion = JSON.parse(JSON.stringify(currentQuestion));
   delete sentQuestion["correctAnswer"];
   io.to(roomId).emit("nextQuestion", sentQuestion);
+  game["gameStarted"] = true;
+  console.log(game["gameStarted"]);
 
   const roundDuration = game.gameRules.snippetLength;
   let timeLeft = roundDuration;
