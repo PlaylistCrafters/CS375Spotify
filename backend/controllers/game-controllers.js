@@ -55,6 +55,8 @@ function getRoom(req, res) {
 
 async function generateGame(roomId) {
   const game = games[roomId];
+  const allowExplicit = game.gameRules.allowExplicit;
+  const rounds = game.gameRules.rounds;
 
   const playerList = Object.values(game.players);
   const allPlayerTopSongs = extractListsByKey(playerList, "topSongIds");
@@ -77,13 +79,27 @@ async function generateGame(roomId) {
     }
   }
 
+  if (songBankIds.size < rounds) {
+    // If not enough song options to choose from, choose from the Top 50 USA playlist
+    const topUsPlaylistId = "37i9dQZEVXbLRQDuF5jeBp";
+    const topUsPlaylistItems = await makeSpotifyRequest(
+      `/playlists/${topUsPlaylistId}`,
+      accessToken,
+      {
+        fields: "tracks.items(track(id))",
+      },
+    );
+    for (const item of topUsPlaylistItems.tracks.items) {
+      songBankIds.add(item.track.id);
+    }
+  }
+
   // Grab up to 50 random songs (Spotify's limit for one single request)
   const selectedSongIds = getXRandomItems(songBankIds, 50);
   const trackResponse = await makeSpotifyRequest("/tracks", accessToken, {
     ids: selectedSongIds.join(","),
   });
 
-  const allowExplicit = games[roomId].gameRules.allowExplicit;
   for (const song of trackResponse.tracks) {
     if (!allowExplicit && song.explicit === true) {
       continue;
@@ -98,7 +114,6 @@ async function generateGame(roomId) {
     }
   }
 
-  const rounds = games[roomId].gameRules.rounds;
   const questionSongs = getXRandomItems(games[roomId].songBank, rounds);
   games[roomId].questions = createQuestions(
     questionSongs,
@@ -144,14 +159,31 @@ async function addPlayerToGame(roomId, player) {
     throw new Error("Invalid roomId");
   }
   const { playerId, accessToken, displayName } = player;
-  const topSongs = await makeSpotifyRequest(`/me/top/tracks`, accessToken, {
-    limit: 50,
-  });
-  const topArtists = await makeSpotifyRequest(`/me/top/artists`, accessToken, {
-    limit: 50,
-  });
-  const topSongIds = topSongs.items.map((song) => song.id);
-  const topArtistIds = topArtists.items.map((artist) => artist.id);
+
+  let topSongIds;
+  let topArtistIds;
+  try {
+    const topSongs = await makeSpotifyRequest(`/me/top/tracks`, accessToken, {
+      limit: 50,
+    });
+    topSongIds = topSongs.items.map((song) => song.id);
+  } catch (error) {
+    topSongIds = [];
+  }
+
+  try {
+    const topArtists = await makeSpotifyRequest(
+      `/me/top/artists`,
+      accessToken,
+      {
+        limit: 50,
+      },
+    );
+    topArtistIds = topArtists.items.map((artist) => artist.id);
+  } catch (error) {
+    topArtistIds = [];
+  }
+
   games[roomId].players[playerId] = {
     id: playerId,
     displayName: displayName,
