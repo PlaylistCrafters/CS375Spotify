@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
       await addPlayerToGame(roomId, {
         ...player,
         accessToken: socket.handshake.headers["accesstoken"],
-      });
+      }, socket.id);
       socket.roomId = roomId;
       socket.playerId = player.playerId;
       socket.join(roomId);
