@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 
-const serverPort = process.env.SERVER_PORT;
+const port = process.env.PORT || 3000;
 const clientProtocol = process.env.CLIENT_PROTOCOL;
 const clientHost = process.env.CLIENT_HOST;
 const clientPort = process.env.CLIENT_PORT;
@@ -12,17 +12,18 @@ app.use(express.json());
 const cors = require("cors");
 app.use(
   cors({
-    origin: `${clientProtocol}${clientHost}:${clientPort}`,
+    origin: [
+      `${clientProtocol}${clientHost}`,
+      `${clientProtocol}${clientHost}:${clientPort}`,
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   }),
 );
 app.use(require("cookie-parser")());
 
-const spotifyRoutes = require("./routes/spotify-routes.js");
 const gameRoutes = require("./routes/game-routes.js");
 
-app.use(spotifyRoutes);
 app.use(gameRoutes);
 
 const http = require("http");
@@ -31,8 +32,11 @@ const { Server } = require("socket.io");
 
 const io = new Server(server, {
   cors: {
-    origin: `${clientProtocol}${clientHost}:${clientPort}`,
-    methods: ["GET"],
+    origin: [
+      `${clientProtocol}${clientHost}`,
+      `${clientProtocol}${clientHost}:${clientPort}`,
+    ],
+    methods: ["GET", "POST"],
   },
 });
 
@@ -60,7 +64,7 @@ io.on("connection", (socket) => {
     try {
       await addPlayerToGame(roomId, {
         ...player,
-        accessToken: socket.handshake.headers["accesstoken"],
+        accessToken: socket.handshake.auth.token,
       });
       socket.roomId = roomId;
       socket.playerId = player.playerId;
@@ -95,6 +99,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(serverPort, () => {
-  console.log(`listening on port: ${serverPort}`);
+server.listen(port, () => {
+  console.log(`listening on port: ${port}`);
 });

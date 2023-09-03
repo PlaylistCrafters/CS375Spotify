@@ -1,87 +1,100 @@
 .wrapper {
-    text-align: center;
+  text-align: center;
 }
 
 .count {
-    font-weight: 700;
-    font-size: 30px;
-    text-align: right;
+  font-weight: 700;
+  font-size: 30px;
+  text-align: right;
 }
 
 .prompt {
-    font-style: italic;
-    font-size: 50px;
-    margin-top: 100px;
-    margin-bottom: 100px;
-    animation: prompt;
-    animation-play-state: initial;
-    animation-iteration-count: 1;
-    animation-delay: 0s;
-    animation-timing-function: ease-out;
-    animation-duration: 2s;
+  font-style: italic;
+  font-size: 50px;
+  margin-top: 100px;
+  margin-bottom: 100px;
+  animation: prompt;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-out;
+  animation-duration: 2s;
 }
 
 @keyframes prompt {
-    from{opacity: 0%}
-    to{opacity: 100%;}
+  from {
+    opacity: 0%;
+  }
+  to {
+    opacity: 100%;
+  }
 }
 
-.buttonGrid{
-    margin: 100px;
-    display: grid;
-    justify-content: center;
-    grid-template-columns: repeat(2, 400px);
-    grid-gap: 15px;
+.buttonGrid {
+  margin: 100px;
+  display: grid;
+  justify-content: center;
+  grid-template-columns: repeat(2, 400px);
+  grid-gap: 15px;
 }
 
 .ansBtn {
-    height: 100px;
-    border-radius: 10px;
-    font-size: 30px;
+  height: 100px;
+  border-radius: 10px;
+  font-size: 30px;
 }
 
 .ansBtn:hover {
-    opacity: 50%;
+  opacity: 50%;
 }
 
 .ansBtn:active {
-    opacity: 90%;
-    animation: 2s linear 0s infinite running buttonClick;
+  opacity: 90%;
+  animation: 2s linear 0s infinite running buttonClick;
 }
 @keyframes buttonClick {
-    from{height: 100px; width: 400px;}
-    to{height: 50px; width: 50px;}
-    
+  from {
+    height: 100px;
+    width: 400px;
+  }
+  to {
+    height: 50px;
+    width: 50px;
+  }
 }
 
 #btn1 {
-    background-color: #46c6f7;
+  background-color: #46c6f7;
 }
 
 #btn2 {
-    background-color: #ffd452;
+  background-color: #ffd452;
 }
 
 #btn3 {
-    background-color: #9267ff;
+  background-color: #9267ff;
 }
 
 #btn4 {
-    background-color: #ff9352;
+  background-color: #ff9352;
 }
 
 .waiting {
-    text-align: center;
-    margin-top: 200px;
-    animation: wait;
-    animation-play-state: initial;
-    animation-iteration-count: 1;
-    animation-delay: 0s;
-    animation-timing-function: linear;
-    animation-duration: 30s;
+  text-align: center;
+  margin-top: 200px;
+  animation: wait;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: linear;
+  animation-duration: 30s;
 }
 
 @keyframes wait {
-    from{font-size: 15px;}
-    to{font-size: 100px;}
+  from {
+    font-size: 15px;
+  }
+  to {
+    font-size: 100px;
+  }
 }

@@ -13,6 +13,9 @@ export default function Home() {
   const serverProtocol = process.env.SERVER_PROTOCOL;
   const serverHost = process.env.SERVER_HOST;
   const serverPort = process.env.SERVER_PORT;
+  const clientProtocol = process.env.CLIENT_PROTOCOL;
+  const clientHost = process.env.CLIENT_HOST;
+  const clientPort = process.env.CLIENT_PORT;
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
@@ -44,11 +47,7 @@ export default function Home() {
           <button onClick={() => handleRedirect("/join")}>Join Room</button>
         </div>
       ) : (
-        <button
-          onClick={() =>
-            handleRedirect(`${serverProtocol}${serverHost}:${serverPort}/login`)
-          }
-        >
+        <button onClick={() => handleRedirect("/api/login")}>
           Login with Spotify
         </button>
       )}

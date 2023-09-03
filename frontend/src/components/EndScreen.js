@@ -2,7 +2,6 @@ const EndScreen = ({ players }) => {
   if (players.length === 0) {
     return <div></div>;
   }
-  // TODO display players and final rankings (players with most points are recognized)
   return (
     <div>
       <table>
