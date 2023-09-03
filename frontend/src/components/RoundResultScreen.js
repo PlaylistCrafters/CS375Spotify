@@ -1,4 +1,11 @@
-import "./RoundResultScreen.css";
+import styles from "./RoundResultScreen.module.css";
+import React, { useEffect, useState } from "react";
+import { Ubuntu } from '@next/font/google';
+
+const ubuntu = Ubuntu({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+});
 
 const RoundResultsScreen = ({
   players,
@@ -22,15 +29,35 @@ const RoundResultsScreen = ({
   const playerScore = currentPlayer ? currentPlayer.points : 0;
   console.log("powerupStatus:", powerupStatus);
 
+  let correctSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/zfoeyezf/Jig%200.mp3');
+  let incorrectSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/lzpzngfl/Jig%201.mp3');
+
+  useEffect(() => {
+  if (roundResult) {
+    correctSound.play();
+  }
+  else {
+    incorrectSound.play();
+  }
+
+  }, []);
   return (
-    <div>
-      <h2>Round Results</h2>
-      <div>Time Left: {timer} seconds</div>
-      <div>Correct Answer: {correctAnswer}</div>
-      <ul>
+    <main className={ubuntu.className}>
+    <div classname={styles.wrapper}>
+      <div className={styles.count}>Time Left: {timer}</div>
+      <div className={styles.header}>Round Results</div>
+      {roundResult &&
+      roundResult.includes(currentUserPlayerId) ? (
+          <div className={styles.correct}>Correct</div>
+      ) : (
+          <div className={styles.incorrect}>Incorrect</div>
+      )}
+      <div className={styles.answer}>Correct Answer: {correctAnswer}</div>
+      <div className={styles.listWrapper}>
+      <ul className={styles.playerList}>
         {players.map((player) => (
-          <li key={player.id}>
-            {player.displayName}: {player.points} points <br />
+          <li className={styles.playerList} key={player.id}>
+            <span className={styles.playerName}>{player.displayName}:</span> {player.points} points <br />
           </li>
         ))}
         <li>
@@ -41,11 +68,18 @@ const RoundResultsScreen = ({
           )}
         </li>
       </ul>
-      <p>Your score: {playerScore} points</p>
+      </div>
+      {currentUserPlayerId && (
+        <p className={styles.yourScore}>
+          Your score:{" "}
+          {players.find((player) => player.id === currentUserPlayerId)?.points}
+        </p>
+      )}
       {powerupStatus && (
         <button onClick={activatePowerup}>Activate Powerup</button>
       )}
     </div>
+    </main>
   );
 };
 
