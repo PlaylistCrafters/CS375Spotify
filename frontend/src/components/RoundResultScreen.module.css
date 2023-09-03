@@ -1,0 +1,120 @@
+.wrapper {
+  text-align: center;
+}
+
+.count {
+  font-weight: 700;
+  font-size: 30px;
+  text-align: right;
+  animation: initialCount;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+.header {
+  text-align: center;
+  font-weight: 700;
+  font-size: 35px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.header, .count {
+  animation: initialRight;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialRight {
+    from{margin-right: 50%; opacity: 0%;}
+    to{margin-right: 0%; opacity: 100%;}
+}
+
+.answer {
+  text-align: center;
+  font-style: italic;
+  font-size: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #46c6f7;
+  animation: initialLeft;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialLeft {
+    from{margin-left: 50%; opacity: 0%;}
+    to{margin-left: 0%; opacity: 100%;}
+}
+
+.correct {
+  color: #50ca8d;
+  text-align: center;
+  font-weight: 700;
+  font-size: 35px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  animation: initialResponse;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+.incorrect {
+  color: #f6454d;
+  text-align: center;
+  font-weight: 700;
+  font-size: 35px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  animation: initialResponse;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialResponse {
+    from{font-size: 1000%; opacity: 0%;}
+    to{font-size: 100%; opacity: 100%;}
+}
+
+.listWrapper {
+  text-align: center;
+}
+
+.playerList {
+  display:  inline-block;
+  text-align: center;
+
+}
+
+.playerName {
+  color:#9267ff;
+}
+
+.player {
+  display:  inline-block;
+  text-align: center;
+}
+
+.yourScore {
+  text-align: center;
+  color: #ffd452;
+  font-size: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
