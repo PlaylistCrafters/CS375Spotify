@@ -27,6 +27,7 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
+
   useEffect(() => {
     if(audio !== null) {
       audio.play();
