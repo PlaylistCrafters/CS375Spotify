@@ -30,10 +30,8 @@ function Page() {
   const [powerupStatus, setPowerupStatus] = useState(null);
 
   useEffect(() => {
-    const accessToken = Cookies.get("accessToken");
     const playerId = Cookies.get("playerId");
     const displayName = Cookies.get("displayName");
-    socket.io.opts.extraHeaders["accessToken"] = accessToken;
     socket.connect();
 
     socket.emit("joinRoom", {
@@ -54,13 +52,17 @@ function Page() {
 
     socket.on("playerReceivedPowerup", ({ playerId, powerupType }) => {
       console.log("entering playerReceivedPowerup");
-      console.log(`Received powerup '${powerupType}' for player with ID: ${playerId}`);
+      console.log(
+        `Received powerup '${powerupType}' for player with ID: ${playerId}`,
+      );
       setPlayers((prevPlayers) => {
         const updatedPlayers = prevPlayers.map((player) => {
           if (player.id === playerId) {
             console.log(`Updating powerup for player with ID: ${playerId}`);
           }
-          return player.id === playerId ? { ...player, powerup: powerupType } : player;
+          return player.id === playerId
+            ? { ...player, powerup: powerupType }
+            : player;
         });
         console.log("Updated players:", updatedPlayers);
         return updatedPlayers;
