@@ -22,6 +22,7 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
+
   let joinAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3');
   let loginAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3');
   let createAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3');
