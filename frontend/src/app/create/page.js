@@ -3,11 +3,12 @@
 import { Ubuntu } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Cookies from "js-cookie";
 import styles from "./Create.module.css";
 
 const ubuntu = Ubuntu({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
 });
 
 export default function Home() {
@@ -21,35 +22,49 @@ export default function Home() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    let errorSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/phmumiwe/Error.mp3');
-    let settingsSound = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/udkyavrh/Settings.mp3');
+    let errorSound = new Audio(
+      "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/phmumiwe/Error.mp3",
+    );
+    let settingsSound = new Audio(
+      "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/udkyavrh/Settings.mp3",
+    );
     const snippetLength = event.target.sLength.value;
     const rounds = event.target.rounds.value;
     const allowExplicit = event.target.explicit.value;
+    const playerId = Cookies.get("playerId");
+
+    if (playerId === null) {
+      setErrorMessage("Need to login with Spotify");
+      errorSound.play();
+      return;
+    }
 
     if (snippetLength < 15 || snippetLength > 30) {
-        setErrorMessage("Snippet length must be between 15-30 seconds");
-        errorSound.play();
-        return;
+      setErrorMessage("Snippet length must be between 15-30 seconds");
+      errorSound.play();
+      return;
     }
     if (rounds < 1 || rounds > 10) {
-        setErrorMessage("The amount of rounds must be between 1-10");
-        errorSound.play();
-        return;
+      setErrorMessage("The amount of rounds must be between 1-10");
+      errorSound.play();
+      return;
     }
     if (allowExplicit !== "yes" && allowExplicit !== "no") {
-        setErrorMessage("The explicit value must be Yes or No");
-        errorSound.play();
-        return;
+      setErrorMessage("The explicit value must be Yes or No");
+      errorSound.play();
+      return;
     }
 
-    let gameRules = {
-      snippetLength: snippetLength,
-      rounds: rounds,
-      allowExplicit: allowExplicit === "yes",
+    const data = {
+      playerId: playerId,
+      gameRules: {
+        snippetLength: snippetLength,
+        rounds: rounds,
+        allowExplicit: allowExplicit === "yes",
+      },
     };
 
-    const data = JSON.stringify(gameRules);
+    const json = JSON.stringify(data);
 
     const endpoint = "/api/rooms";
 
@@ -58,10 +73,8 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: data,
-      credentials: "include",
+      body: json,
     };
-    console.log(serverPort);
 
     const response = await fetch(
       `${serverProtocol}${serverHost}:${serverPort}${endpoint}`,
@@ -70,49 +83,63 @@ export default function Home() {
     setErrorMessage("");
 
     if (response.status === 200) {
-    settingsSound.play();
+      settingsSound.play();
       response.json().then((body) => {
         router.push(`/rooms/${body.roomId}`);
       });
     } else {
-        errorSound.play();
-        setErrorMessage("Unable to create Room");
+      errorSound.play();
+      setErrorMessage("Unable to create Room");
     }
   };
 
   return (
     <main className={ubuntu.className}>
-    <div className={styles.wrapper}>
-      <div id="settings">
-        <div className={styles.header}>Settings</div>
-        <form onSubmit={handleSubmit}>
-            <input className={styles.textInput} id={styles.snippetLabel} type="number" name="sLength" placeholder="Snippet Length (Seconds)"/>
-          <br />
-            <input className={styles.textInput} id={styles.roundLabel} type="number" name="rounds" placeholder="Number of Rounds"/>
-          <br />
-          <label className={styles.dropdownInput} id={styles.explicitLabel}>
-            Allow Explicit Songs{" "}
-            <select id="explicit">
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
-          </label>
-          <br />
-          <label className={styles.dropdownInput} id={styles.powerupsLabel}>
-            Powerups{" "}
-            <select id="powerups">
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
-          </label>
-          <br />
-          <button className={styles.create} id="create" type="submit">
-            Create Room
-          </button>
-        </form>
+      <div className={styles.wrapper}>
+        <div id="settings">
+          <div className={styles.header}>Settings</div>
+          <form onSubmit={handleSubmit}>
+            <input
+              className={styles.textInput}
+              id={styles.snippetLabel}
+              type="number"
+              name="sLength"
+              placeholder="Snippet Length (Seconds)"
+            />
+            <br />
+            <input
+              className={styles.textInput}
+              id={styles.roundLabel}
+              type="number"
+              name="rounds"
+              placeholder="Number of Rounds"
+            />
+            <br />
+            <label className={styles.dropdownInput} id={styles.explicitLabel}>
+              Allow Explicit Songs{" "}
+              <select id="explicit">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+            <br />
+            <label className={styles.dropdownInput} id={styles.powerupsLabel}>
+              Powerups{" "}
+              <select id="powerups">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+            <br />
+            <button className={styles.create} id="create" type="submit">
+              Create Room
+            </button>
+          </form>
+        </div>
+        <div className={styles.error} id="message">
+          {errorMessage}
+        </div>
       </div>
-      <div className={styles.error} id="message">{errorMessage}</div>
-    </div>
     </main>
   );
 }
