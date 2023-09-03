@@ -5,10 +5,15 @@ import styles from "./page.module.css";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
+let joinAudio = 'https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3';
+let loginAudio = 'https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3';
+let createAudio = 'https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3';
+
 export default function Home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [audio, setAudio] = useState(null);
   const serverProtocol = process.env.SERVER_PROTOCOL;
   const serverHost = process.env.SERVER_HOST;
   const serverPort = process.env.SERVER_PORT;
@@ -22,19 +27,23 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
-  const joinAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3');
-  const loginAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3');
-  const createAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3');
+
+  useEffect(() => {
+    if(audio !== null) {
+      audio.play();
+    }
+  }, [audio]);
+  
 
   const handleRedirect = (redirectTo) => {
     if (redirectTo === "/api/login") {
-      loginAudio.play();
+      setAudio(new Audio(loginAudio));
     }
     else if (redirectTo === '/join') {
-      joinAudio.play();
+      setAudio(new Audio(joinAudio));
     }
     else {
-      createAudio.play();
+      setAudio(new Audio(createAudio));
     }
     router.push(redirectTo);
   };
