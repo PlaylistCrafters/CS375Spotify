@@ -1,6 +1,7 @@
 const {
   generateRandomString,
   getXRandomItems,
+  getXRandomItem,
   getRandomKey,
 } = require("../controllers/common-controllers.js");
 const {
@@ -22,7 +23,8 @@ const questionTypes = {
 };
 
 function createRoom(req, res) {
-  const gameRules = req.body;
+  const gameRules = req.body.gameRules;
+  const hostPlayerId = req.body.playerId;
   const roomId = generateRandomString(6);
   const game = {
     id: roomId,
@@ -32,7 +34,7 @@ function createRoom(req, res) {
     roundHistory: [],
     songBank: [],
     currentQuestionIndex: 0,
-    hostPlayerId: req.cookies.playerId,
+    hostPlayerId: hostPlayerId,
   };
   games[roomId] = game;
   console.log(`Created new room. ID: ${roomId}`);
@@ -110,35 +112,30 @@ function createQuestions(questionSongs, songBank) {
   const questions = [];
   for (const questionSong of questionSongs) {
     const questionType = getRandomKey(questionTypes);
-    // Flatten the song bank to one song per artist so the multiple choice for "artist" questions do not have duplicate answers
-    const uniqueArtistSongBank = songBank.reduce(
-      (uniqueSongsByArtist, item) => {
-        const existingItem = uniqueSongsByArtist.find(
-          (obj) => obj.artist === item.artist,
-        );
-        if (!existingItem) {
-          uniqueSongsByArtist.push(item);
-        }
-        return uniqueSongsByArtist;
-      },
-      [],
-    );
-    const otherSongs = getXRandomItems(uniqueArtistSongBank, 3);
+    const answerChoices = new Set();
     let correctAnswer;
-    let otherAnswerChoices;
+    let answerAttr;
     if (questionType === songQuestionType) {
       correctAnswer = questionSong.name;
-      otherAnswerChoices = otherSongs.map((song) => song.name);
+      answerChoices.add(correctAnswer);
+      answerAttr = "name";
     } else if (questionType === artistQuestionType) {
       correctAnswer = questionSong.artist;
-      otherAnswerChoices = otherSongs.map((song) => song.artist);
+      answerChoices.add(correctAnswer);
+      answerAttr = "artist";
     }
+
+    while (answerChoices.size != 4) {
+      const item = getXRandomItem(songBank);
+      answerChoices.add(item[answerAttr]);
+    }
+
     questions.push({
       questionType: questionType,
       prompt: questionTypes[questionType].prompt,
       songUrl: questionSong.mp3Url,
       correctAnswer: correctAnswer,
-      answerChoices: [...otherAnswerChoices, correctAnswer],
+      answerChoices: Array.from(answerChoices).sort(() => Math.random() - 0.5), // Shuffle answer choices
     });
   }
   return questions;
@@ -222,7 +219,6 @@ const startRound = (io, roomId) => {
 
       let roundTransitionTimeLeft = 10;
       const roundTransitionTimer = setInterval(() => {
-        //console.log("Sending timer tick for round transition:", roundTransitionTimeLeft);
         io.to(roomId).emit("timerTick", {
           timeLeft: roundTransitionTimeLeft,
           correctAnswer: currentQuestion.correctAnswer,

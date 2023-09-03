@@ -1,0 +1,92 @@
+.wrapper {
+  text-align: center;
+}
+
+.header {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  font-size: 50px;
+  font-weight: 700;
+  animation: initialHeader;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialHeader {
+  from {
+    margin-left: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-left: 0%;
+    opacity: 100%;
+  }
+}
+
+.input {
+  text-align: center;
+  height: 50px;
+  font-size: 25px;
+  margin-bottom: 30px;
+  animation: initialInput;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialInput {
+  from {
+    margin-right: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-right: 0%;
+    opacity: 100%;
+  }
+}
+
+.joinBtn {
+  height: 50px;
+  width: 100px;
+  font-size: 30px;
+  font-weight: bold;
+  background-color: #50ca8d;
+  border-radius: 10px;
+  animation: initialJoin;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialJoin {
+  from {
+    margin-top: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-top: 0%;
+    opacity: 100%;
+  }
+}
+
+.joinBtn:hover {
+  opacity: 50%;
+}
+
+.joinBtn:active {
+  opacity: 90%;
+}
+
+.error {
+  margin: 30px;
+  font-size: 35px;
+  font-weight: 700;
+  color: #f6454d;
+}
