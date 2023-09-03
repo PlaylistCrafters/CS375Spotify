@@ -22,7 +22,20 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
+  const joinAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3');
+  const loginAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3');
+  const createAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3');
+
   const handleRedirect = (redirectTo) => {
+    if (redirectTo === "/api/login") {
+      loginAudio.play();
+    }
+    else if (redirectTo === '/join') {
+      joinAudio.play();
+    }
+    else {
+      createAudio.play();
+    }
     router.push(redirectTo);
   };
 
@@ -33,13 +46,13 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <h1 className={styles.header}>Song Showdown</h1>
-      <h2 className={styles.header}>
+      <div className={styles.header}>Song Showdown</div>
+      <div className={styles.subHeader}>
         Invite your friends to a song showdown! Create or join a game room and
         challenge other players. Compete in real-time to see who can correctly
         answer questions about song titles and artists, all while racing against
         the clock.
-      </h2>
+      </div>
 
       {isAuthenticated ? (
         <div>

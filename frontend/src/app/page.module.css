@@ -57,9 +57,57 @@
   }
 }
 
+.header, .subHeader {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 .header {
-  margin-top: 30px;
-  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 50px;
+  animation: initialHeader 3s linear 0s infinite;
+}
+
+@keyframes initialHeader {
+  from {
+    color: #f6454d;
+  }
+  20% {
+    color: #9267ff;
+  }
+  40% {
+    color: #46c6f7;
+  }
+  60% {
+    color: #50ca8d;
+  }
+  80% {
+    color: #ffd452;
+  }
+  100% {
+    color: #ff9352;
+  }
+}
+
+.subHeader {
+  font-size: 25px;
+  animation: initialSubheader;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialSubheader {
+  from {
+    margin-right: 100%;
+    opacity: 0%;
+  }
+  to {
+    margin-right: 0%;
+    opacity: 100%;
+  }
 }
 
 .button {
