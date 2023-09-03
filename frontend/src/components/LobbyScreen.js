@@ -10,16 +10,23 @@ const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
       "#9267ff",
       "#46c6f7",
       "#50ca8d",
-      " #ffd452",
-      " #ff9352",
+      "#ffd452",
+      "#ff9352",
     ];
     var randomIndex = Math.floor(Math.random() * colors.length);
     return colors[randomIndex];
   };
 
   useEffect(() => {
-    const randomColors = players.map(() => setRandomColor());
-    setPlayerColors(randomColors);
+    const updatedColors = { ...playerColors };
+
+    players.forEach((player) => {
+      if (!updatedColors[player.displayName]) {
+        updatedColors[player.displayName] = setRandomColor();
+      }
+    });
+
+    setPlayerColors(updatedColors);
   }, [players]);
 
   return (
@@ -38,7 +45,7 @@ const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
         {players.map((player, index) => (
           <li
             className={styles.user}
-            style={{ color: playerColors }}
+            style={{ color: playerColors[player.displayName] }}
             key={index}
           >
             {player.displayName}
