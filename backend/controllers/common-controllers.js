@@ -17,6 +17,15 @@ function getXRandomItems(iterable, length) {
     .slice(0, length);
 }
 
+function getXRandomItem(iterable) {
+  const array = Array.from(iterable);
+  if (array.length === 0) {
+    return null;
+  }
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+}
+
 function getRandomKey(obj) {
   const keys = Object.keys(obj);
   const randomIndex = Math.floor(Math.random() * keys.length);
@@ -26,5 +35,6 @@ function getRandomKey(obj) {
 module.exports = {
   generateRandomString,
   getXRandomItems,
+  getXRandomItem,
   getRandomKey,
 };

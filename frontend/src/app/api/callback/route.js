@@ -88,19 +88,19 @@ export async function GET(req, res) {
       nextRes.cookies.set({
         name: "accessToken",
         value: accessToken,
-        maxAge: expiresIn * 1000,
+        maxAge: expiresIn,
         domain: clientHost,
       });
       nextRes.cookies.set({
         name: "playerId",
         value: playerId,
-        maxAge: expiresIn * 1000,
+        maxAge: expiresIn,
         domain: clientHost,
       });
       nextRes.cookies.set({
         name: "displayName",
         value: displayName,
-        maxAge: expiresIn * 1000,
+        maxAge: expiresIn,
         domain: clientHost,
       });
 
