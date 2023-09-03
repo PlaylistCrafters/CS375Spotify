@@ -1,0 +1,99 @@
+.wrapper {
+  text-align: center;
+}
+
+.header {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 20px;
+}
+
+.user {
+  text-align: center;
+  height: 50px;
+  font-size: 25px;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0; /* Start with opacity 0 */
+  }
+  to {
+    opacity: 1; /* End with opacity 1 */
+  }
+}
+
+.start,
+.header {
+  opacity: 0;
+  animation: initialCreate 1s forwards;
+  animation-delay: 0s; /* Set the same delay for both elements */
+}
+
+@keyframes initialLeft {
+  from {
+    margin-right: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-right: 0%;
+    opacity: 100%;
+  }
+}
+
+@keyframes initialRight {
+  from {
+    margin-left: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-left: 0%;
+    opacity: 100%;
+  }
+}
+
+.start {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 50px;
+  width: 200px;
+  margin: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  background-color: #50ca8d;
+  border-radius: 10px;
+}
+
+@keyframes initialCreate {
+  from {
+    transform: translateY(-50px); /* Move the elements up by 50px */
+    opacity: 0; /* Start with opacity 0 */
+  }
+  to {
+    transform: translateY(
+      0
+    ); /* Move the elements back to their original position */
+    opacity: 1; /* End with opacity 1 */
+  }
+}
+
+.start,
+.header:hover {
+  opacity: 50%;
+}
+
+.start,
+.header:active {
+  opacity: 90%;
+}
+
+.error {
+  margin: 30px;
+  font-size: 35px;
+  font-weight: 700;
+  color: #f6454d;
+}

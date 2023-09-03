@@ -101,6 +101,7 @@ function Page() {
             players={players}
             startGameFunc={startGameFunc}
             isHost={isHost}
+            roomId={roomId}
           />
         );
       case questionScreen:

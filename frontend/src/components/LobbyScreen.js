@@ -1,14 +1,26 @@
-const LobbyScreen = ({ players, startGameFunc, isHost }) => {
+import styles from "./LobbyScreen.module.css";
+
+const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
   return (
-    <div>
-      <h1>Lobby Screen</h1>
+    <main>
+      <div>
+        <h1 className={styles.header}>ID: ${roomId}</h1>
+        <div>
+          {isHost && (
+            <button onClick={startGameFunc} className={styles.start}>
+              Start Game
+            </button>
+          )}
+        </div>
+      </div>
       <ul>
         {players.map((player, index) => (
-          <li key={index}>{player.displayName}</li>
+          <li className={styles.user} key={index}>
+            {player.displayName}
+          </li>
         ))}
       </ul>
-      <div>{isHost && <button onClick={startGameFunc}>Start Game</button>}</div>
-    </div>
+    </main>
   );
 };
 

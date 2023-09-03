@@ -84,6 +84,8 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   color: white;
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 300, 400, 500, 700;
 }
 
 a {
