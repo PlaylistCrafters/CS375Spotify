@@ -33,9 +33,10 @@ function getRandomKey(obj) {
 }
 
 function findCommonValuesFromLists(lists) {
-  return lists.reduce((commonValues, currentList) => {
+  const commonValues = lists.reduce((commonValues, currentList) => {
     return commonValues.filter((value) => currentList.includes(value));
   }, lists[0]);
+  return [...new Set(commonValues)];
 }
 
 function extractListsByKey(objects, key) {
