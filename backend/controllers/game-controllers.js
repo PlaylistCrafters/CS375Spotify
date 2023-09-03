@@ -58,6 +58,8 @@ function getRoom(req, res) {
 }
 
 async function generateGame(roomId) {
+  log(roomId, "start generating game");
+
   const game = games[roomId];
   const allowExplicit = game.gameRules.allowExplicit;
   const rounds = game.gameRules.rounds;
