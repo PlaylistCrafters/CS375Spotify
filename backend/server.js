@@ -52,11 +52,11 @@ io.on("connection", (socket) => {
   socket.on("activatePowerup", ({ playerId, powerupType }) => {
     const game = games[socket.roomId];
     const player = game.players[playerId];
+    const socketId = player.socketId;
 
     if (player && player.powerup === powerupType) {
-
       player.powerup = null;
-      io.to(playerId).emit("powerupActivated", {
+      io.to(socketId).emit("powerupActivated", {
         powerupType: powerupType,
       });
     }
@@ -71,10 +71,14 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", async ({ roomId, player }) => {
     try {
-      await addPlayerToGame(roomId, {
-        ...player,
-        accessToken: socket.handshake.headers["accesstoken"],
-      }, socket.id);
+      await addPlayerToGame(
+        roomId,
+        {
+          ...player,
+          accessToken: socket.handshake.headers["accesstoken"],
+        },
+        socket.id,
+      );
       socket.roomId = roomId;
       socket.playerId = player.playerId;
       socket.join(roomId);

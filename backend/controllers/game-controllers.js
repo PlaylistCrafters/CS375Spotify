@@ -256,7 +256,7 @@ const startRound = (io, roomId) => {
         if (powerupType) {
           // Give the chosen player the determined powerup and emit the event
           givePlayerPowerup(io, game, playerId, powerupType);
-          
+
           /*
           const powerupResult = givePlayerPowerup(game, playerId, powerupType);
           if (powerupResult) {
@@ -320,7 +320,7 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
   }
 }
 
-const givePlayerPowerup = (game, playerId, powerupType) => {
+const givePlayerPowerup = (io, game, playerId, powerupType) => {
   console.log("Entering givePlayerPowerup function");
   console.log("powerupType:", powerupType);
   console.log("playerId:", playerId);
@@ -329,6 +329,7 @@ const givePlayerPowerup = (game, playerId, powerupType) => {
   //return { playerId, powerupType };
   const socketId = game.players[playerId].socketId;
   game.players[playerId].powerup = powerupType;
+  console.log("socketId:", socketId);
   io.to(socketId).emit("playerReceivedPowerup", { playerId, powerupType });
 };
 
