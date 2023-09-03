@@ -32,9 +32,23 @@ function getRandomKey(obj) {
   return keys[randomIndex];
 }
 
+function findCommonValuesFromLists(lists) {
+  return lists.reduce((commonValues, currentList) => {
+    return commonValues.filter((value) => currentList.includes(value));
+  }, lists[0]);
+}
+
+function extractListsByKey(objects, key) {
+  return objects
+    .filter((obj) => obj.hasOwnProperty(key) && Array.isArray(obj[key]))
+    .map((obj) => obj[key]);
+}
+
 module.exports = {
   generateRandomString,
   getXRandomItems,
   getXRandomItem,
   getRandomKey,
+  findCommonValuesFromLists,
+  extractListsByKey,
 };

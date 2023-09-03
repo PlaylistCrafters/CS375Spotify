@@ -3,6 +3,8 @@ const {
   getXRandomItems,
   getXRandomItem,
   getRandomKey,
+  findCommonValuesFromLists,
+  extractListsByKey,
 } = require("../controllers/common-controllers.js");
 const {
   makeSpotifyRequest,
@@ -52,22 +54,18 @@ function getRoom(req, res) {
 }
 
 async function generateGame(roomId) {
-  const commonSongIds = new Set();
-  let commonArtistIds = new Set();
-  for (const [playerId, player] of Object.entries(games[roomId].players)) {
-    for (const songId of player.topSongIds) {
-      commonSongIds.add(songId);
-    }
-    for (const artistId of player.topArtistIds) {
-      commonArtistIds.add(artistId);
-    }
-  }
+  const game = games[roomId];
 
-  const accessToken = await clientCredentials();
+  const playerList = Object.values(game.players);
+  const allPlayerTopSongs = extractListsByKey(playerList, "topSongIds");
+  const allPlayerArtists = extractListsByKey(playerList, "topArtistIds");
+  const commonSongIds = findCommonValuesFromLists(allPlayerTopSongs);
+  let commonArtistIds = findCommonValuesFromLists(allPlayerArtists);
+  commonArtistIds = new Set([...commonArtistIds].slice(0, 10)); // Limit number of common artists per game
 
   const songBankIds = new Set(commonSongIds);
-  // Limit number of common artists per game
-  commonArtistIds = new Set([...commonArtistIds].slice(0, 10));
+
+  const accessToken = await clientCredentials();
   for (const artistId of commonArtistIds) {
     const artistTopTracks = await makeSpotifyRequest(
       `/artists/${artistId}/top-tracks`,
