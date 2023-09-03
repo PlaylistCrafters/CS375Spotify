@@ -22,9 +22,9 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
-  const joinAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3');
-  const loginAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3');
-  const createAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3');
+  let joinAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3');
+  let loginAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3');
+  let createAudio = new Audio('https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3');
 
   const handleRedirect = (redirectTo) => {
     if (redirectTo === "/api/login") {
