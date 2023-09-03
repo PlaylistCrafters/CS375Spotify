@@ -4,7 +4,7 @@ const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
   return (
     <main>
       <div>
-        <h1 className={styles.header}>ID: ${roomId}</h1>
+        <h1 className={styles.header}>ID: {roomId}</h1>
         <div>
           {isHost && (
             <button onClick={startGameFunc} className={styles.start}>
