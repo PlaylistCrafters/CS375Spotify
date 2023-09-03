@@ -40,9 +40,7 @@ function findCommonValuesFromLists(lists) {
 }
 
 function extractListsByKey(objects, key) {
-  return objects
-    .filter((obj) => obj.hasOwnProperty(key) && Array.isArray(obj[key]))
-    .map((obj) => obj[key]);
+  return objects.map((obj) => obj[key]);
 }
 
 module.exports = {

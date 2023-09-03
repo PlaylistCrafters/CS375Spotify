@@ -11,6 +11,10 @@ const {
   clientCredentials,
 } = require("../controllers/spotify-controllers.js");
 
+function log(roomId, message) {
+  console.log(`(roomId: ${roomId})`, message);
+}
+
 let games = {};
 
 const songQuestionType = "song";
@@ -39,7 +43,7 @@ function createRoom(req, res) {
     hostPlayerId: hostPlayerId,
   };
   games[roomId] = game;
-  console.log(`Created new room. ID: ${roomId}`);
+  log(roomId, "room created");
   res.json({ roomId: roomId });
 }
 
@@ -58,15 +62,19 @@ async function generateGame(roomId) {
   const allowExplicit = game.gameRules.allowExplicit;
   const rounds = game.gameRules.rounds;
 
+  log(roomId, "preparing player songs and artists");
   const playerList = Object.values(game.players);
   const allPlayerTopSongs = extractListsByKey(playerList, "topSongIds");
   const allPlayerArtists = extractListsByKey(playerList, "topArtistIds");
+
+  log(roomId, "getting common player songs and artists");
   const commonSongIds = findCommonValuesFromLists(allPlayerTopSongs);
   let commonArtistIds = findCommonValuesFromLists(allPlayerArtists);
   commonArtistIds = new Set([...commonArtistIds].slice(0, 10)); // Limit number of common artists per game
 
   const songBankIds = new Set(commonSongIds);
 
+  log(roomId, "getting common artists' top tracks");
   const accessToken = await clientCredentials();
   for (const artistId of commonArtistIds) {
     const artistTopTracks = await makeSpotifyRequest(
@@ -80,6 +88,7 @@ async function generateGame(roomId) {
   }
 
   if (songBankIds.size < rounds) {
+    log(roomId, "getting top 50 us tracks");
     // If not enough song options to choose from, choose from the Top 50 USA playlist
     const topUsPlaylistId = "37i9dQZEVXbLRQDuF5jeBp";
     const topUsPlaylistItems = await makeSpotifyRequest(
@@ -94,12 +103,14 @@ async function generateGame(roomId) {
     }
   }
 
+  log(roomId, "getting track data");
   // Grab up to 50 random songs (Spotify's limit for one single request)
   const selectedSongIds = getXRandomItems(songBankIds, 50);
   const trackResponse = await makeSpotifyRequest("/tracks", accessToken, {
     ids: selectedSongIds.join(","),
   });
 
+  log(roomId, "adding to song bank");
   for (const song of trackResponse.tracks) {
     if (!allowExplicit && song.explicit === true) {
       continue;
@@ -114,11 +125,14 @@ async function generateGame(roomId) {
     }
   }
 
+  log(roomId, "generating questions");
   const questionSongs = getXRandomItems(games[roomId].songBank, rounds);
   games[roomId].questions = createQuestions(
     questionSongs,
     games[roomId].songBank,
   );
+
+  log(roomId, "finished generating game");
 }
 
 function createQuestions(questionSongs, songBank) {
@@ -191,7 +205,12 @@ async function addPlayerToGame(roomId, player) {
     topArtistIds: topArtistIds,
     points: 0,
   };
-  console.log(`player ${playerId} joined room ${roomId}`);
+
+  log(roomId, `player ${playerId} joined`);
+}
+
+function doesRoomExist(roomId) {
+  return games.hasOwnProperty(roomId);
 }
 
 function getPlayers(roomId) {
@@ -217,13 +236,19 @@ function removePlayerFromGame(roomId, playerId) {
   if (games.hasOwnProperty(roomId)) {
     if (games[roomId].players.hasOwnProperty(playerId)) {
       delete games[roomId].players[playerId];
-      console.log(`player ${playerId} removed from room ${roomId}`);
+      log(roomId, `player ${playerId} left`);
+
+      if (Object.keys(games[roomId].players).length === 0) {
+        log(roomId, "no players left in room. removing game");
+        delete games[roomId];
+      }
     }
   }
 }
 
 const startRound = (io, roomId) => {
   const game = games[roomId];
+  log(roomId, `starting round ${game.currentQuestionIndex + 1}`);
   const currentQuestion = game.questions[game.currentQuestionIndex];
   const sentQuestion = JSON.parse(JSON.stringify(currentQuestion));
   delete sentQuestion["correctAnswer"];
@@ -242,6 +267,7 @@ const startRound = (io, roomId) => {
         game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
       const playersArray = Object.values(game.players);
       const updatedPlayers = playersArray.sort((a, b) => b.points - a.points);
+
       io.to(roomId).emit("roundEnded", {
         updatedPlayers: updatedPlayers,
         roundPlayerRankings: playerRankings,
@@ -271,9 +297,14 @@ const startRound = (io, roomId) => {
   }, 1000);
 };
 
-const endGame = (io, roomId) => {
+function deleteRoom(roomId) {
   delete games[roomId];
+}
+
+const endGame = (io, roomId) => {
+  deleteRoom(roomId);
   io.to(roomId).emit("finishGame");
+  log(roomId, "game over");
 };
 
 function evaluatePlayerAnswer(roomId, playerId, answer) {
@@ -282,6 +313,12 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
   const question = game.questions[currentQuestionIndex];
   const isCorrect = answer === question.correctAnswer;
 
+  log(
+    roomId,
+    `evaluating player ${playerId} answer for round ${
+      currentQuestionIndex + 1
+    }`,
+  );
   if (isCorrect) {
     if (!game.roundHistory[currentQuestionIndex]) {
       game.roundHistory[currentQuestionIndex] = { playerRankings: [] };
@@ -309,4 +346,5 @@ module.exports = {
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
+  doesRoomExist,
 };
