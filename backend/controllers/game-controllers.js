@@ -3,7 +3,7 @@ const {
   getXRandomItems,
   getXRandomItem,
   getRandomKey,
-  findCommonValuesFromLists,
+  intersectArrays,
   extractListsByKey,
 } = require("../controllers/common-controllers.js");
 const {
@@ -70,9 +70,9 @@ async function generateGame(roomId) {
   const allPlayerArtists = extractListsByKey(playerList, "topArtistIds");
 
   log(roomId, "getting common player songs and artists");
-  const commonSongIds = findCommonValuesFromLists(allPlayerTopSongs);
-  let commonArtistIds = findCommonValuesFromLists(allPlayerArtists);
-  commonArtistIds = new Set([...commonArtistIds].slice(0, 10)); // Limit number of common artists per game
+  const commonSongIds = intersectArrays(allPlayerTopSongs);
+  let commonArtistIds = intersectArrays(allPlayerArtists);
+  commonArtistIds = commonArtistIds.slice(0, 10); // Limit number of common artists per game to 10
 
   const songBankIds = new Set(commonSongIds);
 

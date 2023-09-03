@@ -32,11 +32,27 @@ function getRandomKey(obj) {
   return keys[randomIndex];
 }
 
-function findCommonValuesFromLists(lists) {
-  const commonValues = lists.reduce((commonValues, currentList) => {
-    return commonValues.filter((value) => currentList.includes(value));
-  }, lists[0]);
-  return [...new Set(commonValues)];
+function intersectArrays(arrays) {
+  // returns a list of all common values between the arrays
+  if (arrays.length === 0) {
+    return [];
+  }
+  // use first array as base
+  const commonSet = new Set(arrays[0]);
+  // iterate through the rest of the arrays and intersect with the first set
+  for (let i = 1; i < arrays.length; i++) {
+    if (commonSet.size === 0) {
+      // all lists do not share at least one common value
+      break;
+    }
+    const currentSet = new Set(arrays[i]);
+    for (const item of commonSet) {
+      if (!currentSet.has(item)) {
+        commonSet.delete(item);
+      }
+    }
+  }
+  return Array.from(commonSet);
 }
 
 function extractListsByKey(objects, key) {
@@ -48,6 +64,6 @@ module.exports = {
   getXRandomItems,
   getXRandomItem,
   getRandomKey,
-  findCommonValuesFromLists,
+  intersectArrays,
   extractListsByKey,
 };
