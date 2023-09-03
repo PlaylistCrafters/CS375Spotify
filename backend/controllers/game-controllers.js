@@ -144,7 +144,7 @@ function createQuestions(questionSongs, songBank) {
   return questions;
 }
 
-async function addPlayerToGame(roomId, player) {
+async function addPlayerToGame(roomId, player, socketId) {
   if (!games.hasOwnProperty(roomId)) {
     throw new Error("Invalid roomId");
   }
@@ -162,6 +162,7 @@ async function addPlayerToGame(roomId, player) {
     displayName: displayName,
     topSongIds: topSongIds,
     topArtistIds: topArtistIds,
+    socketId: socketId,
     points: 0,
   };
   console.log(`player ${playerId} joined room ${roomId}`);
