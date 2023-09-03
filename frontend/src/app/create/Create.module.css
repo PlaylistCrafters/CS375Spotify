@@ -1,0 +1,90 @@
+.wrapper {
+    text-align: center;
+}
+
+.header {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.textInput{
+    text-align: center;
+    height: 50px;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.dropdownInput{
+    text-align: center;
+    height: 50px;
+    font-size: 25px;
+    margin-bottom: 50px;
+}
+
+.header, #roundLabel, #powerupsLabel{
+    animation: initialLeft;
+    animation-play-state: initial;
+    animation-iteration-count: 1;
+    animation-delay: 0s;
+    animation-timing-function: ease-in;
+    animation-duration: 0.5s;
+
+}
+
+@keyframes initialLeft {
+    from{margin-right: 50%; opacity: 0%;}
+    to{margin-right: 0%; opacity: 100%;}
+}
+
+#snippetLabel, #explicitLabel{
+    animation: initialRight;
+    animation-play-state: initial;
+    animation-iteration-count: 1;
+    animation-delay: 0s;
+    animation-timing-function: ease-in;
+    animation-duration: 0.5s;
+
+}
+
+@keyframes initialRight {
+    from{margin-left: 50%; opacity: 0%;}
+    to{margin-left: 0%; opacity: 100%;}
+}
+
+.create {
+    height: 50px;
+    width: 200px;
+    margin-top: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    background-color: #50ca8d;
+    border-radius: 10px;
+    animation: initialCreate;
+    animation-play-state: initial;
+    animation-iteration-count: 1;
+    animation-delay: 0s;
+    animation-timing-function: ease-in;
+    animation-duration: 0.5s;
+}
+
+@keyframes initialCreate {
+    from{margin-top: 50%; opacity: 0%;}
+    to{margin-top: 0%; opacity: 100%;}
+}
+
+.create:hover {
+    opacity: 50%;
+}
+
+.create:active {
+    opacity: 90%;
+}
+
+.error {
+    margin: 30px;
+    font-size: 35px;
+    font-weight: 700;
+    color: #f6454d;
+}
