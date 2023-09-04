@@ -83,6 +83,10 @@ function Page() {
   };
 
   const startGameFunc = () => {
+    let clickSound = new Audio(
+      "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/dcxoadjr/Popup%20%2B%20Run%20Title.mp3",
+    );
+    clickSound.play();
     if (isHost) {
       socket.emit("startGame", { roomId: roomId });
     }
@@ -102,6 +106,7 @@ function Page() {
             players={players}
             startGameFunc={startGameFunc}
             isHost={isHost}
+            roomId={roomId}
           />
         );
       case questionScreen:
