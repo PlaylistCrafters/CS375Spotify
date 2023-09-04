@@ -255,6 +255,10 @@ function removePlayerFromGame(roomId, playerId) {
 }
 
 const startRound = (io, roomId) => {
+  if (!doesRoomExist(roomId)) {
+    log(roomId, "game room no longer exists, exiting game flow");
+    return;
+  }
   const game = games[roomId];
   log(roomId, `starting round ${game.currentQuestionIndex + 1}`);
   const currentQuestion = game.questions[game.currentQuestionIndex];
