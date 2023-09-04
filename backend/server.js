@@ -49,6 +49,7 @@ const {
   getPlayers,
   getHostPlayerId,
   activatePowerup,
+  doesRoomExist,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
@@ -60,8 +61,18 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
-    if (socket.roomId !== null && socket.playerId !== null) {
-      removePlayerFromGame(socket.roomId, socket.playerId);
+    const roomId = socket.roomId;
+    if (roomId !== null && socket.playerId !== null) {
+      removePlayerFromGame(roomId, socket.playerId);
+
+      if (doesRoomExist(roomId)) {
+        const players = getPlayers(roomId);
+        const hostPlayerId = getHostPlayerId(roomId);
+        io.to(roomId).emit("updateLobby", {
+          players: players,
+          hostPlayerId: hostPlayerId,
+        });
+      }
     }
   });
 
