@@ -79,20 +79,7 @@ async function generateGame(roomId) {
 
   const songBankIds = new Set(commonSongIds);
 
-  log(roomId, "getting common artists' top tracks");
-  const accessToken = await clientCredentials();
-  for (const artistId of commonArtistIds) {
-    const artistTopTracks = await makeSpotifyRequest(
-      `/artists/${artistId}/top-tracks`,
-      accessToken,
-      { market: "ES" },
-    );
-    for (const track of artistTopTracks.tracks) {
-      songBankIds.add(track.id);
-    }
-  }
-
-  if (songBankIds.size < rounds || commonArtistIds.length < 6) {
+  if (commonSongIds.length < rounds || commonArtistIds.length < 6) {
     log(roomId, "getting top 50 US tracks");
     // If not enough song/artist options to choose from, choose from the Top 50 USA playlist
     const topUsPlaylistId = "37i9dQZEVXbLRQDuF5jeBp";
@@ -105,6 +92,19 @@ async function generateGame(roomId) {
     );
     for (const item of topUsPlaylistItems.tracks.items) {
       songBankIds.add(item.track.id);
+    }
+  }
+
+  log(roomId, "getting common artists' top tracks");
+  const accessToken = await clientCredentials();
+  for (const artistId of commonArtistIds) {
+    const artistTopTracks = await makeSpotifyRequest(
+      `/artists/${artistId}/top-tracks`,
+      accessToken,
+      { market: "ES" },
+    );
+    for (const track of artistTopTracks.tracks) {
+      songBankIds.add(track.id);
     }
   }
 
