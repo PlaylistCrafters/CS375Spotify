@@ -77,6 +77,8 @@ async function generateGame(roomId) {
   log(roomId, `${commonSongIds.length} songs in common`);
   log(roomId, `${commonArtistIds.length} artists in common`);
 
+  const accessToken = await clientCredentials();
+
   const songBankIds = new Set(commonSongIds);
 
   if (commonSongIds.length < rounds || commonArtistIds.length < 6) {
@@ -96,7 +98,6 @@ async function generateGame(roomId) {
   }
 
   log(roomId, "getting common artists' top tracks");
-  const accessToken = await clientCredentials();
   for (const artistId of commonArtistIds) {
     const artistTopTracks = await makeSpotifyRequest(
       `/artists/${artistId}/top-tracks`,
