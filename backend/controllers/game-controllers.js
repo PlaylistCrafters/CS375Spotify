@@ -169,6 +169,7 @@ async function addPlayerToGame(roomId, player, socketId) {
     points: 0,
     powerup: null,
     multiplier: 1,
+    reduceChoices: false,
   };
   console.log(`player ${playerId} joined room ${roomId}`);
 }
@@ -302,6 +303,9 @@ const startRound = (io, roomId) => {
           }
         }
       }, 1000);
+      for (const playerId in game.players) {
+        game.players[playerId].reduceChoices = false;
+      }
     }
   }, 1000);
 };
@@ -398,37 +402,30 @@ function getTopPlayer(players) {
 }
 
 function sendNextQuestionToPlayers(io, players, currentQuestion, roomId, sentQuestion) {
-  const reducedChoicePlayers = players.filter(player => player.reduceChoices);
-  const nonReducedChoicePlayers = players.filter(player => !player.reduceChoices);
-
-  if (reducedChoicePlayers.length === 0) {
-    io.to(roomId).emit("nextQuestion", sentQuestion);
-  } else {
-    const reducedQuestion = createReducedQuestion(currentQuestion);
-
-    nonReducedChoicePlayers.forEach(player => {
-      io.to(player.socketId).emit("nextQuestion", sentQuestion);
-    });
-
-    reducedChoicePlayers.forEach(player => {
-      io.to(player.socketId).emit("nextQuestion", reducedQuestion);
-    });
-  }
+  players.forEach(player => {
+    const questionToSend = createModifiedQuestion(currentQuestion, player);
+    io.to(player.socketId).emit("nextQuestion", questionToSend);
+  });
 }
 
-function createReducedQuestion(currentQuestion) {
-  const reducedQuestion = JSON.parse(JSON.stringify(currentQuestion));
-  const correctAnswerIndex = reducedQuestion.answerChoices.indexOf(currentQuestion.correctAnswer);
+function createModifiedQuestion(currentQuestion, player) {
+  if (player.reduceChoices) {
+    const reducedQuestion = JSON.parse(JSON.stringify(currentQuestion));
+    const correctAnswerIndex = reducedQuestion.answerChoices.indexOf(currentQuestion.correctAnswer);
 
-  if (correctAnswerIndex !== -1) {
-    const randomIndex = Math.floor(Math.random() * reducedQuestion.answerChoices.length);
-    if (randomIndex !== correctAnswerIndex) {
-      reducedQuestion.answerChoices.splice(randomIndex, 1);
-    } else {
-      reducedQuestion.answerChoices.splice(randomIndex === 0 ? 1 : randomIndex - 1, 1);
+    if (correctAnswerIndex !== -1) {
+      const randomIndex = Math.floor(Math.random() * reducedQuestion.answerChoices.length);
+      if (randomIndex !== correctAnswerIndex) {
+        reducedQuestion.answerChoices.splice(randomIndex, 1);
+      } else {
+        reducedQuestion.answerChoices.splice(randomIndex === 0 ? 1 : randomIndex - 1, 1);
+      }
     }
+
+    return reducedQuestion;
+  } else {
+    return currentQuestion;
   }
-  return reducedQuestion;
 }
 
 
