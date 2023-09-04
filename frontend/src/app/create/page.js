@@ -123,13 +123,6 @@ export default function Home() {
               </select>
             </label>
             <br />
-            <label className={styles.dropdownInput} id={styles.powerupsLabel}>
-              Powerups{" "}
-              <select id="powerups">
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
-            </label>
             <br />
             <button className={styles.create} id="create" type="submit">
               Create Room
