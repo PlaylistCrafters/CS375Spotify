@@ -407,7 +407,6 @@ const givePlayerPowerup = (io, game, playerId, powerupType) => {
 };
 
 const rollForPowerupType = () => {
-  return "matchTopUser";
   const d20Roll = Math.floor(Math.random() * 20) + 1;
   if (d20Roll >= 1 && d20Roll <= 14) {
     return "reduceChoices";
@@ -424,6 +423,7 @@ const activatePowerup = (io, playerId, powerupType, roomId) => {
   const socketId = player.socketId;
 
   if (player && player.powerup === powerupType) {
+    log(roomId, `player ${playerId} activated ${powerupType} powerup`);
     player.powerup = null;
     io.to(socketId).emit("powerupActivated", {
       powerupType: powerupType,
