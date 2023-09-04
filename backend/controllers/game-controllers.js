@@ -37,6 +37,7 @@ function createRoom(req, res) {
     currentQuestionIndex: 0,
     hostPlayerId: hostPlayerId,
     gameStarted: false,
+    
   };
   games[roomId] = game;
   console.log(`Created new room. ID: ${roomId}`);
@@ -167,6 +168,7 @@ async function addPlayerToGame(roomId, player, socketId) {
     socketId: socketId,
     points: 0,
     powerup: null,
+    multiplier: 1,
   };
   console.log(`player ${playerId} joined room ${roomId}`);
 }
@@ -325,7 +327,12 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
     const pointsToEarn =
       highestPossiblePoints -
       game.roundHistory[currentQuestionIndex].playerRankings.length;
-    game.players[playerId].points += pointsToEarn;
+    
+    const player = game.players[playerId];
+    const multiplier = player.multiplier || 1;
+    const pointsEarned = pointsToEarn * multiplier;
+    player.points += pointsEarned;
+    player.multiplier = 1;
   }
 }
 
@@ -363,8 +370,35 @@ const activatePowerup = (io, playerId, powerupType, roomId) => {
     io.to(socketId).emit("powerupActivated", {
       powerupType: powerupType,
     });
+    
+    switch (powerupType) {
+      case "pointMultiplier":
+        player.multiplier = 2;
+        break;
+      case "reduceChoices":
+        player.reduceChoices = true;
+        break;
+      case "matchTopUser":
+        const topPlayer = getTopPlayer(game.players);
+        if (topPlayer) {
+          player.points = topPlayer.points;
+        }
+        break;
+      default:
+        break;
+    }
   }
 };
+
+function getTopPlayer(players) {
+  let topPlayer = null;
+  for (const playerId in players) {
+    if (!topPlayer || players[playerId].points > topPlayer.points) {
+      topPlayer = players[playerId];
+    }
+  }
+  return topPlayer;
+}
 
 module.exports = {
   createRoom,
