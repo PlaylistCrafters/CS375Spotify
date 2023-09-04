@@ -1,0 +1,120 @@
+.wrapper {
+  text-align: center;
+}
+
+.rank {
+  text-align: center;
+  font-weight: 700;
+  font-size: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #ffd452;
+}
+
+.playerName,
+.points,
+.rank {
+  padding: 10px;
+}
+
+.playerName {
+  text-align: center;
+  font-style: italic;
+  font-size: 30px;
+  color: #46c6f7;
+}
+
+.points {
+  text-align: center;
+  font-size: 30px;
+}
+
+.headers {
+  text-align: center;
+  font-weight: 700;
+  font-size: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  animation: initialHeaders;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialHeaders {
+  from {
+    opacity: 0%;
+  }
+  to {
+    opacity: 100%;
+  }
+}
+
+.home {
+  height: 50px;
+  width: 100px;
+  margin-top: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  background-color: #50ca8d;
+  border-radius: 10px;
+  animation: initialHome;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+.home:hover {
+  opacity: 50%;
+}
+
+.home:active {
+  opacity: 90%;
+}
+
+@keyframes initialHome {
+  from {
+    margin-top: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-top: 0%;
+    opacity: 100%;
+  }
+}
+
+#rankHead {
+  color: #f6454d;
+}
+
+#playerHead {
+  color: #9267ff;
+}
+
+#pointsHead {
+  color: #ff9352;
+}
+
+.body {
+  animation: initialResponse;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialResponse {
+  from {
+    font-size: 5000%;
+    opacity: 0%;
+  }
+  to {
+    font-size: 100%;
+    opacity: 100%;
+  }
+}
