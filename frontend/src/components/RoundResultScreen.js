@@ -14,13 +14,11 @@ const RoundResultsScreen = ({
   timer,
   correctAnswer,
   powerupStatus,
+  activatePowerup,
 }) => {
-  const activatePowerup = () => {
+  const onActivate = () => {
     console.log("Activate Powerup button clicked");
-    socket.emit("activatePowerup", {
-      playerId: currentUserPlayerId,
-      powerupType: powerupStatus,
-    });
+    activatePowerup(currentUserPlayerId, powerupStatus);
   };
 
   const currentPlayer = players.find(
@@ -81,7 +79,9 @@ const RoundResultsScreen = ({
           </p>
         )}
         {powerupStatus && (
-          <button onClick={activatePowerup}>Activate Powerup</button>
+          <button onClick={() => onActivate()}>
+            Activate Powerup {powerupStatus}
+          </button>
         )}
       </div>
     </main>

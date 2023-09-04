@@ -166,6 +166,7 @@ async function addPlayerToGame(roomId, player, socketId) {
     topArtistIds: topArtistIds,
     socketId: socketId,
     points: 0,
+    powerup: null,
   };
   console.log(`player ${playerId} joined room ${roomId}`);
 }
@@ -220,11 +221,7 @@ const startRound = (io, roomId) => {
       const playerRankings =
         game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
       const playersArray = Object.values(game.players);
-      const updatedPlayers = playersArray.sort((a, b) => b.points - a.points);
-      io.to(roomId).emit("roundEnded", {
-        updatedPlayers: updatedPlayers,
-        roundPlayerRankings: playerRankings,
-      });
+      let updatedPlayers = playersArray.sort((a, b) => b.points - a.points);
 
       // Calculate player multipliers based on points
       const playerMultipliers = updatedPlayers.map(
@@ -262,6 +259,22 @@ const startRound = (io, roomId) => {
           }
           */
         }
+        /*
+        updatedPlayers = updatedPlayers.map((player) => {
+          if (player.id === playerId) {
+            console.log(`Updating powerup for player with ID: ${playerId}`);
+          }
+          return player.id === playerId
+            ? { ...player, powerup: powerupType }
+            : player;
+        });
+
+        console.log(updatedPlayers);*/
+
+        io.to(roomId).emit("roundEnded", {
+          updatedPlayers: updatedPlayers,
+          roundPlayerRankings: playerRankings,
+        });
       }
 
       let roundTransitionTimeLeft = 10;
@@ -340,6 +353,19 @@ const rollForPowerupType = () => {
   }
 };
 
+const activatePowerup = (io, playerId, powerupType, roomId) => {
+  const game = games[roomId];
+  const player = game.players[playerId];
+  const socketId = player.socketId;
+
+  if (player && player.powerup === powerupType) {
+    player.powerup = null;
+    io.to(socketId).emit("powerupActivated", {
+      powerupType: powerupType,
+    });
+  }
+};
+
 module.exports = {
   createRoom,
   getRoom,
@@ -353,4 +379,5 @@ module.exports = {
   getHostPlayerId,
   rollForPowerupType,
   givePlayerPowerup,
+  activatePowerup,
 };

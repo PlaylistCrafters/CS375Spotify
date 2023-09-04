@@ -51,25 +51,15 @@ function Page() {
     });
 
     socket.on("playerReceivedPowerup", ({ playerId, powerupType }) => {
+      setPowerupStatus(powerupType);
       console.log("entering playerReceivedPowerup");
       console.log(
         `Received powerup '${powerupType}' for player with ID: ${playerId}`,
       );
-      setPlayers((prevPlayers) => {
-        const updatedPlayers = prevPlayers.map((player) => {
-          if (player.id === playerId) {
-            console.log(`Updating powerup for player with ID: ${playerId}`);
-          }
-          return player.id === playerId
-            ? { ...player, powerup: powerupType }
-            : player;
-        });
-        console.log("Updated players:", updatedPlayers);
-        return updatedPlayers;
-      });
     });
 
     socket.on("powerupActivated", ({ powerupType }) => {
+      console.log("client powerupActivated");
       setPowerupStatus(null);
     });
     socket.on("nextQuestion", (questionData) => {
@@ -87,6 +77,7 @@ function Page() {
       setPlayers(updatedPlayers);
       setRoundResult(roundPlayerRankings);
       setScreen(roundResultsScreen);
+      console.log(updatedPlayers);
     });
 
     socket.on("finishGame", () => {
@@ -113,6 +104,14 @@ function Page() {
   const onSelectAnswer = (answer) => {
     socket.emit("submitAnswer", {
       answer: answer,
+    });
+  };
+
+  const activatePowerup = (currentUserPlayerId, powerupStatus) => {
+    socket.emit("activatePowerup", {
+      playerId: currentUserPlayerId,
+      powerupType: powerupStatus,
+      roomId: roomId,
     });
   };
 
@@ -143,6 +142,7 @@ function Page() {
             timer={timer}
             correctAnswer={correctAnswer}
             powerupStatus={powerupStatus}
+            activatePowerup={activatePowerup}
           />
         );
       case endScreen:

@@ -48,22 +48,15 @@ const {
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
+  activatePowerup,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
   console.log("user connected");
 
-  socket.on("activatePowerup", ({ playerId, powerupType }) => {
-    const game = games[socket.roomId];
-    const player = game.players[playerId];
-    const socketId = player.socketId;
-
-    if (player && player.powerup === powerupType) {
-      player.powerup = null;
-      io.to(socketId).emit("powerupActivated", {
-        powerupType: powerupType,
-      });
-    }
+  socket.on("activatePowerup", async ({ playerId, powerupType, roomId }) => {
+    await activatePowerup(io, playerId, powerupType, roomId);
+    console.log("server activatePowerup");
   });
 
   socket.on("disconnect", () => {
