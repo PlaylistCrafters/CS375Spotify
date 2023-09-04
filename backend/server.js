@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const clientProtocol = process.env.CLIENT_PROTOCOL;
 const clientHost = process.env.CLIENT_HOST;
 const clientPort = process.env.CLIENT_PORT;
