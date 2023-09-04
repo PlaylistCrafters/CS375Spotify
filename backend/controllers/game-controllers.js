@@ -391,13 +391,7 @@ const activatePowerup = (io, playerId, powerupType, roomId) => {
 };
 
 function getTopPlayer(players) {
-  let topPlayer = null;
-  for (const playerId in players) {
-    if (!topPlayer || players[playerId].points > topPlayer.points) {
-      topPlayer = players[playerId];
-    }
-  }
-  return topPlayer;
+  return players.sort((a, b) => b.points - a.points)[0];
 }
 
 module.exports = {
