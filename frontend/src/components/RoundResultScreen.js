@@ -22,12 +22,6 @@ const RoundResultsScreen = ({
     activatePowerup(currentUserPlayerId, powerupStatus);
   };
 
-  const currentPlayer = players.find(
-    (player) => player.id === currentUserPlayerId,
-  );
-  const playerScore = currentPlayer ? currentPlayer.points : 0;
-  console.log("powerupStatus:", powerupStatus);
-
   let correctSound = new Audio(
     "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/zfoeyezf/Jig%200.mp3",
   );
@@ -36,7 +30,6 @@ const RoundResultsScreen = ({
   );
 
   useEffect(() => {
-    console.log("result", roundResult);
     if (roundResult.length !== 0) {
       correctSound.play();
     } else {
