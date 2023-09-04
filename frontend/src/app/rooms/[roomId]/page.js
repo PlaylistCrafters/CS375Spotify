@@ -73,12 +73,18 @@ function Page() {
       setCorrectAnswer(correctAnswer);
     });
 
-    socket.on("roundEnded", ({ updatedPlayers, roundPlayerRankings }) => {
-      setPlayers(updatedPlayers);
-      setRoundResult(roundPlayerRankings);
-      setScreen(roundResultsScreen);
-      console.log(updatedPlayers);
-    });
+    socket.on(
+      "roundEnded",
+      ({ updatedPlayers, roundPlayerRankings, hasNextRound }) => {
+        if (!hasNextRound) {
+          setPowerupStatus(null);
+        }
+        setPlayers(updatedPlayers);
+        setRoundResult(roundPlayerRankings);
+        setScreen(roundResultsScreen);
+        console.log(updatedPlayers);
+      },
+    );
 
     socket.on("finishGame", () => {
       console.log(players);

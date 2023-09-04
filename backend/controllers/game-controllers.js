@@ -319,12 +319,13 @@ const startRound = (io, roomId) => {
           log(roomId, `player ${playerId} received ${powerupType} powerup`);
           givePlayerPowerup(io, game, playerId, powerupType);
         }
-
-        io.to(roomId).emit("roundEnded", {
-          updatedPlayers: updatedPlayers,
-          roundPlayerRankings: playerRankings,
-        });
       }
+
+      io.to(roomId).emit("roundEnded", {
+        updatedPlayers: updatedPlayers,
+        roundPlayerRankings: playerRankings,
+        hasNextRound: game.currentQuestionIndex + 1 !== game.questions.length,
+      });
 
       let roundTransitionTimeLeft = 10;
       const roundTransitionTimer = setInterval(() => {
