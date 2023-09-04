@@ -4,6 +4,15 @@ import React, { useEffect, useState } from "react";
 const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
   const [playerColors, setPlayerColors] = useState([]);
   const [music, setMusic] = useState(null);
+  let clickSound = new Audio();
+
+  const startGame = () => {
+    let clickSound = new Audio(
+      "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/dcxoadjr/Popup%20%2B%20Run%20Title.mp3",
+    );
+    clickSound.play();
+    startGameFunc;
+  };
 
   const setRandomColor = () => {
     const colors = [
