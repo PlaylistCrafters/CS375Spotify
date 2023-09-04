@@ -68,6 +68,12 @@
   border-radius: 10px;
 }
 
+.start[disabled] {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
 @keyframes initialCreate {
   from {
     transform: translateY(-50px); /* Move the elements up by 50px */

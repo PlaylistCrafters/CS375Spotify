@@ -4,14 +4,17 @@ import React, { useEffect, useState } from "react";
 const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
   const [playerColors, setPlayerColors] = useState([]);
   const [music, setMusic] = useState(null);
-  let clickSound = new Audio();
+  const [buttonDisabled, setButtonDisabled] = useState(false); // State to track button disabled state
 
   const startGame = () => {
-    let clickSound = new Audio(
-      "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/dcxoadjr/Popup%20%2B%20Run%20Title.mp3",
-    );
-    clickSound.play();
-    startGameFunc;
+    if (!buttonDisabled) {
+      let clickSound = new Audio(
+        "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/dcxoadjr/Popup%20%2B%20Run%20Title.mp3",
+      );
+      clickSound.play();
+      startGameFunc();
+      setButtonDisabled(true); // Disable the button after it's pressed
+    }
   };
 
   const setRandomColor = () => {
@@ -84,7 +87,11 @@ const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
         <h1 className={styles.header}>ID: {roomId}</h1>
         <div>
           {isHost && (
-            <button onClick={startGameFunc} className={styles.start}>
+            <button
+              onClick={startGame}
+              className={styles.start}
+              disabled={buttonDisabled}
+            >
               Start Game
             </button>
           )}
