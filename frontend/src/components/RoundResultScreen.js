@@ -16,6 +16,7 @@ const RoundResultsScreen = ({
   powerupStatus,
   activatePowerup,
 }) => {
+  const [powerupDesc, setDesc] = useState("");
   const onActivate = () => {
     console.log("Activate Powerup button clicked");
     activatePowerup(currentUserPlayerId, powerupStatus);
@@ -35,10 +36,19 @@ const RoundResultsScreen = ({
   );
 
   useEffect(() => {
-    if (roundResult) {
+    console.log("result", roundResult);
+    if (roundResult.length !== 0) {
       correctSound.play();
     } else {
       incorrectSound.play();
+    }
+
+    if (powerupStatus === "reduceChoices") {
+      setDesc("Reduce the amount of choices to 3 for the next round");
+    } else if (powerupStatus === "pointMultiplier") {
+      setDesc("Gain 2x the points next round");
+    } else if (powerupStatus === "matchTopUser") {
+      setDesc("Match the points of the first place player");
     }
   }, []);
   return (
@@ -79,9 +89,13 @@ const RoundResultsScreen = ({
           </p>
         )}
         {powerupStatus && (
-          <button onClick={() => onActivate()}>
-            Activate Powerup {powerupStatus}
-          </button>
+          <div className={styles.powerupWrapper}>
+            <p className={styles.powerupAnnouncement}>Powerup Gained!</p>
+            <p className={styles.powerupDesc}>{powerupDesc}</p>
+            <button className={styles.powerupBtn} onClick={() => onActivate()}>
+              Activate Powerup
+            </button>
+          </div>
         )}
       </div>
     </main>
