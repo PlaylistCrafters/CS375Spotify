@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 
 const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
   const [playerColors, setPlayerColors] = useState([]);
+  const [music, setMusic] = useState(null);
 
   const setRandomColor = () => {
     const colors = [
@@ -18,11 +19,50 @@ const LobbyScreen = ({ players, startGameFunc, isHost, roomId }) => {
   };
 
   useEffect(() => {
+    const audio = new Audio(
+      "https://vgmsite.com/soundtracks/wii-sports-wii/avkrzklape/09%20Tennis%20%28Select%20Position%29.mp3",
+    );
+    setMusic(audio);
+
+    audio.play();
+
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const replayMusicOnEnd = () => {
+      if (music) {
+        music.currentTime = 0;
+        music.play();
+      }
+    };
+
+    if (music) {
+      music.addEventListener("ended", replayMusicOnEnd);
+    }
+
+    return () => {
+      if (music) {
+        music.removeEventListener("ended", replayMusicOnEnd);
+      }
+    };
+  }, [music]);
+
+  useEffect(() => {
+    let playerJoinAudio = new Audio(
+      "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kwjiznam/Eshop.mp3",
+    );
     const updatedColors = { ...playerColors };
 
     players.forEach((player) => {
       if (!updatedColors[player.displayName]) {
         updatedColors[player.displayName] = setRandomColor();
+        playerJoinAudio.play();
       }
     });
 
