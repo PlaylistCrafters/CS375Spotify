@@ -206,6 +206,9 @@ const startRound = (io, roomId) => {
   const currentQuestion = game.questions[game.currentQuestionIndex];
   const sentQuestion = JSON.parse(JSON.stringify(currentQuestion));
   delete sentQuestion["correctAnswer"];
+  
+  sendNextQuestionToPlayers(io, Object.values(game.players), currentQuestion, roomId, sentQuestion);
+
   io.to(roomId).emit("nextQuestion", sentQuestion);
   game["gameStarted"] = true;
   console.log(game["gameStarted"]);
@@ -393,6 +396,41 @@ const activatePowerup = (io, playerId, powerupType, roomId) => {
 function getTopPlayer(players) {
   return players.sort((a, b) => b.points - a.points)[0];
 }
+
+function sendNextQuestionToPlayers(io, players, currentQuestion, roomId, sentQuestion) {
+  const reducedChoicePlayers = players.filter(player => player.reduceChoices);
+  const nonReducedChoicePlayers = players.filter(player => !player.reduceChoices);
+
+  if (reducedChoicePlayers.length === 0) {
+    io.to(roomId).emit("nextQuestion", sentQuestion);
+  } else {
+    const reducedQuestion = createReducedQuestion(currentQuestion);
+
+    nonReducedChoicePlayers.forEach(player => {
+      io.to(player.socketId).emit("nextQuestion", sentQuestion);
+    });
+
+    reducedChoicePlayers.forEach(player => {
+      io.to(player.socketId).emit("nextQuestion", reducedQuestion);
+    });
+  }
+}
+
+function createReducedQuestion(currentQuestion) {
+  const reducedQuestion = JSON.parse(JSON.stringify(currentQuestion));
+  const correctAnswerIndex = reducedQuestion.answerChoices.indexOf(currentQuestion.correctAnswer);
+
+  if (correctAnswerIndex !== -1) {
+    const randomIndex = Math.floor(Math.random() * reducedQuestion.answerChoices.length);
+    if (randomIndex !== correctAnswerIndex) {
+      reducedQuestion.answerChoices.splice(randomIndex, 1);
+    } else {
+      reducedQuestion.answerChoices.splice(randomIndex === 0 ? 1 : randomIndex - 1, 1);
+    }
+  }
+  return reducedQuestion;
+}
+
 
 module.exports = {
   createRoom,
