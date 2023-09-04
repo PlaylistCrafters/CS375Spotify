@@ -295,7 +295,7 @@ const startRound = (io, roomId) => {
 
       // Calculate player multipliers based on points
       const playerMultipliers = updatedPlayers.map(
-        (player, index) => updatedPlayers.length - index,
+        (player, index) => index + 1,
       );
 
       // Determine which player gets a powerup
