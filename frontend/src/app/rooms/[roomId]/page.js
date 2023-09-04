@@ -67,6 +67,7 @@ function Page() {
     });
 
     socket.on("finishGame", () => {
+      console.log(players);
       setScreen(endScreen);
     });
 
