@@ -20,6 +20,7 @@ function getXRandomItems(iterable, length) {
 function getXRandomItem(iterable) {
   const array = Array.from(iterable);
   if (array.length === 0) {
+    console.log("empty array. cannot get random item");
     return null;
   }
   const randomIndex = Math.floor(Math.random() * array.length);

@@ -74,6 +74,9 @@ async function generateGame(roomId) {
   let commonArtistIds = intersectArrays(allPlayerArtists);
   commonArtistIds = commonArtistIds.slice(0, 10); // Limit number of common artists per game to 10
 
+  log(roomId, `${commonSongIds.length} songs in common`);
+  log(roomId, `${commonArtistIds.length} artists in common`);
+
   const songBankIds = new Set(commonSongIds);
 
   log(roomId, "getting common artists' top tracks");
@@ -89,9 +92,9 @@ async function generateGame(roomId) {
     }
   }
 
-  if (songBankIds.size < rounds) {
-    log(roomId, "getting top 50 us tracks");
-    // If not enough song options to choose from, choose from the Top 50 USA playlist
+  if (songBankIds.size < rounds || commonArtistIds.length < 6) {
+    log(roomId, "getting top 50 US tracks");
+    // If not enough song/artist options to choose from, choose from the Top 50 USA playlist
     const topUsPlaylistId = "37i9dQZEVXbLRQDuF5jeBp";
     const topUsPlaylistItems = await makeSpotifyRequest(
       `/playlists/${topUsPlaylistId}`,
@@ -132,14 +135,16 @@ async function generateGame(roomId) {
   games[roomId].questions = createQuestions(
     questionSongs,
     games[roomId].songBank,
+    roomId,
   );
 
   log(roomId, "finished generating game");
 }
 
-function createQuestions(questionSongs, songBank) {
+function createQuestions(questionSongs, songBank, roomId) {
   const questions = [];
   for (const questionSong of questionSongs) {
+    log(roomId, `generating question ${questions.length + 1}`);
     const questionType = getRandomKey(questionTypes);
     const answerChoices = new Set();
     let correctAnswer;
@@ -154,6 +159,7 @@ function createQuestions(questionSongs, songBank) {
       answerAttr = "artist";
     }
 
+    log(roomId, `generating question ${questions.length + 1} answer choices`);
     while (answerChoices.size != 4) {
       const item = getXRandomItem(songBank);
       answerChoices.add(item[answerAttr]);
@@ -164,7 +170,7 @@ function createQuestions(questionSongs, songBank) {
       prompt: questionTypes[questionType].prompt,
       songUrl: questionSong.mp3Url,
       correctAnswer: correctAnswer,
-      answerChoices: Array.from(answerChoices).sort(() => Math.random() - 0.5), // Shuffle answer choices
+      answerChoices: Array.from(answerChoices).sort(() => Math.random() - 0.5), // Shuffle answer choice order
     });
   }
   return questions;
