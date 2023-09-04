@@ -10,7 +10,6 @@ const {
 } = require("../controllers/spotify-controllers.js");
 
 let games = {};
-let answered = 0;
 
 const songQuestionType = "song";
 const artistQuestionType = "artist";
@@ -37,7 +36,7 @@ function createRoom(req, res) {
     currentQuestionIndex: 0,
     hostPlayerId: hostPlayerId,
     gameStarted: false,
-    
+    currentRoundNumAnswered: 0,
   };
   games[roomId] = game;
   console.log(`Created new room. ID: ${roomId}`);
@@ -204,15 +203,9 @@ function removePlayerFromGame(roomId, playerId) {
 
 const startRound = (io, roomId) => {
   let game = games[roomId];
-  const currentQuestion = game.questions[game.currentQuestionIndex];
-  const sentQuestion = JSON.parse(JSON.stringify(currentQuestion));
-  delete sentQuestion["correctAnswer"];
-  
-  sendNextQuestionToPlayers(io, Object.values(game.players), currentQuestion, roomId, sentQuestion);
-
-  io.to(roomId).emit("nextQuestion", sentQuestion);
   game["gameStarted"] = true;
-  console.log(game["gameStarted"]);
+  const currentQuestion = game.questions[game.currentQuestionIndex];
+  sendNextQuestionToPlayers(io, Object.values(game.players), currentQuestion);
 
   const roundDuration = game.gameRules.snippetLength;
   let timeLeft = roundDuration;
@@ -220,9 +213,12 @@ const startRound = (io, roomId) => {
     io.to(roomId).emit("timerTick", { timeLeft });
     timeLeft--;
 
-    if (timeLeft < 0 || answered === Object.values(game.players).length) {
+    if (
+      timeLeft < 0 ||
+      game.currentRoundNumAnswered === Object.values(game.players).length
+    ) {
       clearInterval(roundTimer);
-      answered = 0;
+      game.currentRoundNumAnswered = 0;
 
       const playerRankings =
         game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
@@ -249,33 +245,15 @@ const startRound = (io, roomId) => {
       }
 
       if (playerWithPowerupIndex !== null) {
-        console.log("Player with powerup index:", playerWithPowerupIndex);
-        // Determine the powerup type for the chosen player
         const playerId = updatedPlayers[playerWithPowerupIndex].id;
         const powerupType = rollForPowerupType();
         if (powerupType) {
-          // Give the chosen player the determined powerup and emit the event
+          console.log(
+            roomId,
+            `player ${playerId} received ${powerupType} powerup`,
+          );
           givePlayerPowerup(io, game, playerId, powerupType);
-
-          /*
-          const powerupResult = givePlayerPowerup(game, playerId, powerupType);
-          if (powerupResult) {
-            console.log("Emitting powerupResult to playerReceivedPowerup");
-            io.to(playerId).emit("playerReceivedPowerup", powerupResult);
-          }
-          */
         }
-        /*
-        updatedPlayers = updatedPlayers.map((player) => {
-          if (player.id === playerId) {
-            console.log(`Updating powerup for player with ID: ${playerId}`);
-          }
-          return player.id === playerId
-            ? { ...player, powerup: powerupType }
-            : player;
-        });
-
-        console.log(updatedPlayers);*/
 
         io.to(roomId).emit("roundEnded", {
           updatedPlayers: updatedPlayers,
@@ -303,8 +281,12 @@ const startRound = (io, roomId) => {
           }
         }
       }, 1000);
+
       for (const playerId in game.players) {
-        game.players[playerId].reduceChoices = false;
+        const player = game.players[playerId];
+        // Reset modifiers
+        player.reduceChoices = false;
+        player.multiplier = 1;
       }
     }
   }, 1000);
@@ -320,7 +302,7 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
   const currentQuestionIndex = game.currentQuestionIndex;
   const question = game.questions[currentQuestionIndex];
   const isCorrect = answer === question.correctAnswer;
-  answered += 1;
+  game.currentRoundNumAnswered += 1;
 
   if (isCorrect) {
     if (!game.roundHistory[currentQuestionIndex]) {
@@ -334,29 +316,22 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
     const pointsToEarn =
       highestPossiblePoints -
       game.roundHistory[currentQuestionIndex].playerRankings.length;
-    
+
     const player = game.players[playerId];
     const multiplier = player.multiplier || 1;
     const pointsEarned = pointsToEarn * multiplier;
     player.points += pointsEarned;
-    player.multiplier = 1;
   }
 }
 
 const givePlayerPowerup = (io, game, playerId, powerupType) => {
-  console.log("Entering givePlayerPowerup function");
-  console.log("powerupType:", powerupType);
-  console.log("playerId:", playerId);
-  //const player = game.players[playerId];
-  //player.powerup = powerupType;
-  //return { playerId, powerupType };
   const socketId = game.players[playerId].socketId;
   game.players[playerId].powerup = powerupType;
-  console.log("socketId:", socketId);
   io.to(socketId).emit("playerReceivedPowerup", { playerId, powerupType });
 };
 
 const rollForPowerupType = () => {
+  return "matchTopUser";
   const d20Roll = Math.floor(Math.random() * 20) + 1;
   if (d20Roll >= 1 && d20Roll <= 14) {
     return "reduceChoices";
@@ -377,7 +352,7 @@ const activatePowerup = (io, playerId, powerupType, roomId) => {
     io.to(socketId).emit("powerupActivated", {
       powerupType: powerupType,
     });
-    
+
     switch (powerupType) {
       case "pointMultiplier":
         player.multiplier = 2;
@@ -398,36 +373,39 @@ const activatePowerup = (io, playerId, powerupType, roomId) => {
 };
 
 function getTopPlayer(players) {
-  return players.sort((a, b) => b.points - a.points)[0];
+  return Object.values(players).sort((a, b) => b.points - a.points)[0];
 }
 
-function sendNextQuestionToPlayers(io, players, currentQuestion, roomId, sentQuestion) {
-  players.forEach(player => {
-    const questionToSend = createModifiedQuestion(currentQuestion, player);
+function sendNextQuestionToPlayers(io, players, question) {
+  players.forEach((player) => {
+    const questionToSend = createModifiedQuestion(question, player);
     io.to(player.socketId).emit("nextQuestion", questionToSend);
   });
 }
 
-function createModifiedQuestion(currentQuestion, player) {
+function createModifiedQuestion(question, player) {
+  const sentQuestion = JSON.parse(JSON.stringify(question));
   if (player.reduceChoices) {
-    const reducedQuestion = JSON.parse(JSON.stringify(currentQuestion));
-    const correctAnswerIndex = reducedQuestion.answerChoices.indexOf(currentQuestion.correctAnswer);
-
+    const correctAnswerIndex = sentQuestion.answerChoices.indexOf(
+      question.correctAnswer,
+    );
     if (correctAnswerIndex !== -1) {
-      const randomIndex = Math.floor(Math.random() * reducedQuestion.answerChoices.length);
+      const randomIndex = Math.floor(
+        Math.random() * sentQuestion.answerChoices.length,
+      );
       if (randomIndex !== correctAnswerIndex) {
-        reducedQuestion.answerChoices.splice(randomIndex, 1);
+        sentQuestion.answerChoices.splice(randomIndex, 1);
       } else {
-        reducedQuestion.answerChoices.splice(randomIndex === 0 ? 1 : randomIndex - 1, 1);
+        sentQuestion.answerChoices.splice(
+          randomIndex === 0 ? 1 : randomIndex - 1,
+          1,
+        );
       }
     }
-
-    return reducedQuestion;
-  } else {
-    return currentQuestion;
   }
+  delete sentQuestion["correctAnswer"];
+  return sentQuestion;
 }
-
 
 module.exports = {
   createRoom,

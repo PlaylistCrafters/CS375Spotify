@@ -54,9 +54,8 @@ const {
 io.on("connection", (socket) => {
   console.log("user connected");
 
-  socket.on("activatePowerup", async ({ playerId, powerupType, roomId }) => {
-    await activatePowerup(io, playerId, powerupType, roomId);
-    console.log("server activatePowerup");
+  socket.on("activatePowerup", ({ playerId, powerupType, roomId }) => {
+    activatePowerup(io, playerId, powerupType, roomId);
   });
 
   socket.on("disconnect", () => {
