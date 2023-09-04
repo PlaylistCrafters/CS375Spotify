@@ -316,10 +316,7 @@ const startRound = (io, roomId) => {
         const playerId = updatedPlayers[playerWithPowerupIndex].id;
         const powerupType = rollForPowerupType();
         if (powerupType) {
-          console.log(
-            roomId,
-            `player ${playerId} received ${powerupType} powerup`,
-          );
+          log(roomId, `player ${playerId} received ${powerupType} powerup`);
           givePlayerPowerup(io, game, playerId, powerupType);
         }
 
