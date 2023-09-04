@@ -269,9 +269,9 @@ const startRound = (io, roomId) => {
     log(roomId, "game room no longer exists, exiting game flow");
     return;
   }
-  log(roomId, `starting round ${game.currentQuestionIndex + 1}`);
   let game = games[roomId];
   game["gameStarted"] = true;
+  log(roomId, `starting round ${game.currentQuestionIndex + 1}`);
   const currentQuestion = game.questions[game.currentQuestionIndex];
   sendNextQuestionToPlayers(io, Object.values(game.players), currentQuestion);
 
