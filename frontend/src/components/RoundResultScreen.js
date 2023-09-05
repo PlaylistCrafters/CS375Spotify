@@ -2,6 +2,9 @@ import styles from "./RoundResultScreen.module.css";
 import React, { useEffect, useState } from "react";
 import { Ubuntu } from "@next/font/google";
 
+let backgroundSound = new Audio(
+  "https://vgmsite.com/soundtracks/wii-sports-wii/vseuozjisc/03%20Wii%20Sports%20Menu.mp3",
+);
 const ubuntu = Ubuntu({
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
@@ -18,6 +21,10 @@ const RoundResultsScreen = ({
 }) => {
   const [powerupDesc, setDesc] = useState("");
   const onActivate = () => {
+    let activateSound = new Audio(
+      "https://vgmsite.com/soundtracks/wii-sports-wii/gyxvsunwnc/23%20Bowling%20%28Close%20Jingle%29.mp3",
+    );
+    activateSound.play();
     console.log("Activate Powerup button clicked");
     activatePowerup(currentUserPlayerId, powerupStatus);
   };
@@ -35,6 +42,7 @@ const RoundResultsScreen = ({
     } else {
       incorrectSound.play();
     }
+    backgroundSound.play();
 
     if (powerupStatus === "reduceChoices") {
       setDesc("Reduce the amount of choices to 3 for the next round");
@@ -44,6 +52,16 @@ const RoundResultsScreen = ({
       setDesc("Match the points of the first place player");
     }
   }, []);
+
+  useEffect(() => {
+    console.log(timer);
+    if (timer === 1) {
+      console.log("it equals 1");
+      backgroundSound.pause();
+      backgroundSound.currentTime = 0;
+    }
+  });
+
   return (
     <main className={ubuntu.className}>
       <div classname={styles.wrapper}>
