@@ -63,13 +63,6 @@ const RoundResultsScreen = ({
                 {player.points} points <br />
               </li>
             ))}
-            <li>
-              {roundResult && roundResult.includes(currentUserPlayerId) ? (
-                <span className="green-indicator">Correct</span>
-              ) : (
-                <span className="red-indicator">Incorrect</span>
-              )}
-            </li>
           </ul>
         </div>
         {currentUserPlayerId && (
