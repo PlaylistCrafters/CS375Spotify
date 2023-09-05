@@ -5,9 +5,12 @@ import styles from "./page.module.css";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
-let joinAudio = 'https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3';
-let loginAudio = 'https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3';
-let createAudio = 'https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3';
+let joinAudio =
+  "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/kevbxvla/User.mp3";
+let loginAudio =
+  "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/cusagemg/Controller.mp3";
+let createAudio =
+  "https://vgmsite.com/soundtracks/nintendo-switch-sound-effects/ovvkjyda/Home.mp3";
 
 export default function Home() {
   const router = useRouter();
@@ -27,22 +30,18 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
-
   useEffect(() => {
-    if(audio !== null) {
+    if (audio !== null) {
       audio.play();
     }
   }, [audio]);
-  
 
   const handleRedirect = (redirectTo) => {
     if (redirectTo === "/api/login") {
       setAudio(new Audio(loginAudio));
-    }
-    else if (redirectTo === '/join') {
+    } else if (redirectTo === "/join") {
       setAudio(new Audio(joinAudio));
-    }
-    else {
+    } else {
       setAudio(new Audio(createAudio));
     }
     router.push(redirectTo);

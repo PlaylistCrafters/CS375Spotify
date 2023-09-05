@@ -48,11 +48,16 @@ const {
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
+  activatePowerup,
   doesRoomExist,
 } = require("./controllers/game-controllers.js");
 
 io.on("connection", (socket) => {
   console.log("user connected");
+
+  socket.on("activatePowerup", ({ playerId, powerupType, roomId }) => {
+    activatePowerup(io, playerId, powerupType, roomId);
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
@@ -73,10 +78,14 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", async ({ roomId, player }) => {
     try {
-      await addPlayerToGame(roomId, {
-        ...player,
-        accessToken: socket.handshake.auth.token,
-      });
+      await addPlayerToGame(
+        roomId,
+        {
+          ...player,
+          accessToken: socket.handshake.auth.token,
+        },
+        socket.id,
+      );
       socket.roomId = roomId;
       socket.playerId = player.playerId;
       socket.join(roomId);

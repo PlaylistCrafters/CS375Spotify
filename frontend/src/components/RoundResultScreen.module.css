@@ -22,7 +22,8 @@
   margin-bottom: 10px;
 }
 
-.header, .count {
+.header,
+.count {
   animation: initialRight;
   animation-play-state: initial;
   animation-iteration-count: 1;
@@ -32,8 +33,14 @@
 }
 
 @keyframes initialRight {
-    from{margin-right: 50%; opacity: 0%;}
-    to{margin-right: 0%; opacity: 100%;}
+  from {
+    margin-right: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-right: 0%;
+    opacity: 100%;
+  }
 }
 
 .answer {
@@ -52,8 +59,14 @@
 }
 
 @keyframes initialLeft {
-    from{margin-left: 50%; opacity: 0%;}
-    to{margin-left: 0%; opacity: 100%;}
+  from {
+    margin-left: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-left: 0%;
+    opacity: 100%;
+  }
 }
 
 .correct {
@@ -87,8 +100,14 @@
 }
 
 @keyframes initialResponse {
-    from{font-size: 1000%; opacity: 0%;}
-    to{font-size: 100%; opacity: 100%;}
+  from {
+    font-size: 1000%;
+    opacity: 0%;
+  }
+  to {
+    font-size: 100%;
+    opacity: 100%;
+  }
 }
 
 .listWrapper {
@@ -96,17 +115,16 @@
 }
 
 .playerList {
-  display:  inline-block;
+  display: block;
   text-align: center;
-
 }
 
 .playerName {
-  color:#9267ff;
+  color: #9267ff;
 }
 
 .player {
-  display:  inline-block;
+  display: inline-block;
   text-align: center;
 }
 
@@ -118,3 +136,63 @@
   margin-bottom: 10px;
 }
 
+.powerupWrapper {
+  display: block;
+  text-align: center;
+}
+
+.powerupAnnouncement {
+  color: #f6454d;
+  text-align: center;
+  font-weight: 700;
+  font-size: 35px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  animation: initialResponse;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+.powerupDesc {
+  text-align: center;
+  font-size: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.powerupBtn {
+  height: 50px;
+  width: 100px;
+  font-size: 15px;
+  font-weight: bold;
+  background-color: #ff9352;
+  border-radius: 10px;
+  animation: initialJoin;
+  animation-play-state: initial;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
+@keyframes initialJoin {
+  from {
+    margin-top: 50%;
+    opacity: 0%;
+  }
+  to {
+    margin-top: 0%;
+    opacity: 100%;
+  }
+}
+
+.powerupBtn:hover {
+  opacity: 50%;
+}
+
+.powerupBtn:active {
+  opacity: 90%;
+}

@@ -27,6 +27,7 @@ function Page() {
   const [roundResult, setRoundResult] = useState(null);
   const [isHost, setIsHost] = useState(false);
   const [correctAnswer, setCorrectAnswer] = useState(null);
+  const [powerupStatus, setPowerupStatus] = useState(null);
 
   useEffect(() => {
     const playerId = Cookies.get("playerId");
@@ -49,6 +50,18 @@ function Page() {
       router.push("/");
     });
 
+    socket.on("playerReceivedPowerup", ({ playerId, powerupType }) => {
+      setPowerupStatus(powerupType);
+      console.log("entering playerReceivedPowerup");
+      console.log(
+        `Received powerup '${powerupType}' for player with ID: ${playerId}`,
+      );
+    });
+
+    socket.on("powerupActivated", ({ powerupType }) => {
+      console.log("client powerupActivated");
+      setPowerupStatus(null);
+    });
     socket.on("nextQuestion", (questionData) => {
       console.log(questionData);
       setQuestion(questionData);
@@ -60,11 +73,18 @@ function Page() {
       setCorrectAnswer(correctAnswer);
     });
 
-    socket.on("roundEnded", ({ updatedPlayers, roundPlayerRankings }) => {
-      setPlayers(updatedPlayers);
-      setRoundResult(roundPlayerRankings);
-      setScreen(roundResultsScreen);
-    });
+    socket.on(
+      "roundEnded",
+      ({ updatedPlayers, roundPlayerRankings, hasNextRound }) => {
+        if (!hasNextRound) {
+          setPowerupStatus(null);
+        }
+        setPlayers(updatedPlayers);
+        setRoundResult(roundPlayerRankings);
+        setScreen(roundResultsScreen);
+        console.log(updatedPlayers);
+      },
+    );
 
     socket.on("finishGame", () => {
       console.log(players);
@@ -98,6 +118,14 @@ function Page() {
     });
   };
 
+  const activatePowerup = (currentUserPlayerId, powerupStatus) => {
+    socket.emit("activatePowerup", {
+      playerId: currentUserPlayerId,
+      powerupType: powerupStatus,
+      roomId: roomId,
+    });
+  };
+
   const displayScreen = () => {
     switch (screen) {
       case lobbyScreen:
@@ -125,6 +153,8 @@ function Page() {
             currentUserPlayerId={Cookies.get("playerId")}
             timer={timer}
             correctAnswer={correctAnswer}
+            powerupStatus={powerupStatus}
+            activatePowerup={activatePowerup}
           />
         );
       case endScreen:

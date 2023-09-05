@@ -57,7 +57,8 @@
   }
 }
 
-.header, .subHeader {
+.header,
+.subHeader {
   margin-top: 20px;
   margin-bottom: 20px;
 }

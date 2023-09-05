@@ -41,6 +41,8 @@ function createRoom(req, res) {
     songBank: [],
     currentQuestionIndex: 0,
     hostPlayerId: hostPlayerId,
+    gameStarted: false,
+    currentRoundNumAnswered: 0,
   };
   games[roomId] = game;
   log(roomId, "room created");
@@ -177,9 +179,12 @@ function createQuestions(questionSongs, songBank, roomId) {
   return questions;
 }
 
-async function addPlayerToGame(roomId, player) {
+async function addPlayerToGame(roomId, player, socketId) {
   if (!games.hasOwnProperty(roomId)) {
     throw new Error("Invalid roomId");
+  }
+  if (games[roomId].gameStarted) {
+    throw new Error("Game is already in prgoress");
   }
   const { playerId, accessToken, displayName } = player;
 
@@ -212,7 +217,11 @@ async function addPlayerToGame(roomId, player) {
     displayName: displayName,
     topSongIds: topSongIds,
     topArtistIds: topArtistIds,
+    socketId: socketId,
     points: 0,
+    powerup: null,
+    multiplier: 1,
+    reduceChoices: false,
   };
 
   log(roomId, `player ${playerId} joined`);
@@ -260,12 +269,11 @@ const startRound = (io, roomId) => {
     log(roomId, "game room no longer exists, exiting game flow");
     return;
   }
-  const game = games[roomId];
+  let game = games[roomId];
+  game["gameStarted"] = true;
   log(roomId, `starting round ${game.currentQuestionIndex + 1}`);
   const currentQuestion = game.questions[game.currentQuestionIndex];
-  const sentQuestion = JSON.parse(JSON.stringify(currentQuestion));
-  delete sentQuestion["correctAnswer"];
-  io.to(roomId).emit("nextQuestion", sentQuestion);
+  sendNextQuestionToPlayers(io, Object.values(game.players), currentQuestion);
 
   const roundDuration = game.gameRules.snippetLength;
   let timeLeft = roundDuration;
@@ -273,17 +281,50 @@ const startRound = (io, roomId) => {
     io.to(roomId).emit("timerTick", { timeLeft });
     timeLeft--;
 
-    if (timeLeft < 0) {
+    if (
+      timeLeft < 0 ||
+      game.currentRoundNumAnswered === Object.values(game.players).length
+    ) {
       clearInterval(roundTimer);
+      game.currentRoundNumAnswered = 0;
 
       const playerRankings =
         game.roundHistory[game.currentQuestionIndex]?.playerRankings || [];
       const playersArray = Object.values(game.players);
-      const updatedPlayers = playersArray.sort((a, b) => b.points - a.points);
+      let updatedPlayers = playersArray.sort((a, b) => b.points - a.points);
+
+      // Calculate player multipliers based on points
+      const playerMultipliers = updatedPlayers.map(
+        (player, index) => index + 1,
+      );
+
+      // Determine which player gets a powerup
+      let playerWithPowerupIndex = null;
+      let highestRoll = -1;
+
+      for (let i = 0; i < playerMultipliers.length; i++) {
+        const playerRoll = Math.floor(
+          Math.random() * (6 * playerMultipliers[i] + 1),
+        );
+        if (playerRoll > highestRoll) {
+          highestRoll = playerRoll;
+          playerWithPowerupIndex = i;
+        }
+      }
+
+      if (playerWithPowerupIndex !== null) {
+        const playerId = updatedPlayers[playerWithPowerupIndex].id;
+        const powerupType = rollForPowerupType();
+        if (powerupType) {
+          log(roomId, `player ${playerId} received ${powerupType} powerup`);
+          givePlayerPowerup(io, game, playerId, powerupType);
+        }
+      }
 
       io.to(roomId).emit("roundEnded", {
         updatedPlayers: updatedPlayers,
         roundPlayerRankings: playerRankings,
+        hasNextRound: game.currentQuestionIndex + 1 !== game.questions.length,
       });
 
       let roundTransitionTimeLeft = 10;
@@ -306,6 +347,13 @@ const startRound = (io, roomId) => {
           }
         }
       }, 1000);
+
+      for (const playerId in game.players) {
+        const player = game.players[playerId];
+        // Reset modifiers
+        player.reduceChoices = false;
+        player.multiplier = 1;
+      }
     }
   }, 1000);
 };
@@ -325,6 +373,7 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
   const currentQuestionIndex = game.currentQuestionIndex;
   const question = game.questions[currentQuestionIndex];
   const isCorrect = answer === question.correctAnswer;
+  game.currentRoundNumAnswered += 1;
 
   log(
     roomId,
@@ -344,8 +393,95 @@ function evaluatePlayerAnswer(roomId, playerId, answer) {
     const pointsToEarn =
       highestPossiblePoints -
       game.roundHistory[currentQuestionIndex].playerRankings.length;
-    game.players[playerId].points += pointsToEarn;
+
+    const player = game.players[playerId];
+    const multiplier = player.multiplier || 1;
+    const pointsEarned = pointsToEarn * multiplier;
+    player.points += pointsEarned;
   }
+}
+
+const givePlayerPowerup = (io, game, playerId, powerupType) => {
+  const socketId = game.players[playerId].socketId;
+  game.players[playerId].powerup = powerupType;
+  io.to(socketId).emit("playerReceivedPowerup", { playerId, powerupType });
+};
+
+const rollForPowerupType = () => {
+  const d20Roll = Math.floor(Math.random() * 20) + 1;
+  if (d20Roll >= 1 && d20Roll <= 14) {
+    return "reduceChoices";
+  } else if (d20Roll >= 15 && d20Roll <= 19) {
+    return "pointMultiplier";
+  } else {
+    return "matchTopUser";
+  }
+};
+
+const activatePowerup = (io, playerId, powerupType, roomId) => {
+  const game = games[roomId];
+  const player = game.players[playerId];
+  const socketId = player.socketId;
+
+  if (player && player.powerup === powerupType) {
+    log(roomId, `player ${playerId} activated ${powerupType} powerup`);
+    player.powerup = null;
+    io.to(socketId).emit("powerupActivated", {
+      powerupType: powerupType,
+    });
+
+    switch (powerupType) {
+      case "pointMultiplier":
+        player.multiplier = 2;
+        break;
+      case "reduceChoices":
+        player.reduceChoices = true;
+        break;
+      case "matchTopUser":
+        const topPlayer = getTopPlayer(game.players);
+        if (topPlayer) {
+          player.points = topPlayer.points;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+};
+
+function getTopPlayer(players) {
+  return Object.values(players).sort((a, b) => b.points - a.points)[0];
+}
+
+function sendNextQuestionToPlayers(io, players, question) {
+  players.forEach((player) => {
+    const questionToSend = createModifiedQuestion(question, player);
+    io.to(player.socketId).emit("nextQuestion", questionToSend);
+  });
+}
+
+function createModifiedQuestion(question, player) {
+  const sentQuestion = JSON.parse(JSON.stringify(question));
+  if (player.reduceChoices) {
+    const correctAnswerIndex = sentQuestion.answerChoices.indexOf(
+      question.correctAnswer,
+    );
+    if (correctAnswerIndex !== -1) {
+      const randomIndex = Math.floor(
+        Math.random() * sentQuestion.answerChoices.length,
+      );
+      if (randomIndex !== correctAnswerIndex) {
+        sentQuestion.answerChoices.splice(randomIndex, 1);
+      } else {
+        sentQuestion.answerChoices.splice(
+          randomIndex === 0 ? 1 : randomIndex - 1,
+          1,
+        );
+      }
+    }
+  }
+  delete sentQuestion["correctAnswer"];
+  return sentQuestion;
 }
 
 module.exports = {
@@ -359,5 +495,8 @@ module.exports = {
   removePlayerFromGame,
   getPlayers,
   getHostPlayerId,
+  rollForPowerupType,
+  givePlayerPowerup,
+  activatePowerup,
   doesRoomExist,
 };

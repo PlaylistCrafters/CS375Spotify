@@ -110,3 +110,8 @@ table {
 body {
   background-color: #121420;
 }
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+  display: none;
+}
